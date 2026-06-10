@@ -1,0 +1,176 @@
+/* Checkout Page Styles */
+.checkout-container {
+    min-height: 80vh;
+    background-color: #f8f9fa;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1c1d1f;
+}
+
+/* Empty Cart */
+.empty-cart {
+    background: white;
+    border-radius: 12px;
+    padding: 60px 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Cart Items */
+.cart-items {
+    background: transparent;
+}
+
+.cart-item-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cart-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.cart-item-card .card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.course-thumbnail {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.course-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.course-title a:hover {
+    color: #5624d0 !important;
+}
+
+.rating {
+    font-size: 14px;
+    color: #1c1d1f;
+}
+
+.rating-value {
+    color: #f59e0b;
+}
+
+.stars i {
+    font-size: 12px;
+}
+
+.stars .fa-star,
+.stars .fa-star-half-stroke {
+    color: #f59e0b;
+}
+
+.stars .fa-star.fa-regular {
+    color: #d1d5db;
+}
+
+.price {
+    color: #1c1d1f;
+}
+
+/* Order Summary Card */
+.card.sticky-top {
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.card-header {
+    border-bottom: 2px solid #e9ecef;
+    padding: 1.25rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.btn-primary {
+    background-color: #5624d0;
+    border-color: #5624d0;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #401b9c;
+    border-color: #401b9c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(86, 36, 208, 0.3);
+}
+
+.btn-outline-secondary {
+    border-color: #d1d7dc;
+    color: #1c1d1f;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f7f9fa;
+    border-color: #1c1d1f;
+    color: #1c1d1f;
+}
+
+.btn-outline-danger {
+    transition: all 0.2s ease;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .cart-item-card .row {
+        text-align: center !important;
+    }
+
+    .cart-item-card .col-md-3,
+    .cart-item-card .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .course-thumbnail {
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .card.sticky-top {
+        position: static !important;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .course-title {
+        font-size: 1rem;
+    }
+
+    .price {
+        font-size: 1.25rem;
+    }
+
+    .course-thumbnail {
+        height: 100px;
+    }
+}

@@ -1,0 +1,271 @@
+﻿/* Flashcard Explore Card Styles */
+.flashcard-explore-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: visible;
+    position: relative;
+}
+
+.flashcard-explore-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+    z-index: 100;
+}
+
+.flashcard-card-image {
+    height: 140px;
+    object-fit: cover;
+    width: 100%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.flashcard-card-image-placeholder {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.flashcard-card-body {
+    padding: 1rem;
+    min-height: 180px;
+}
+
+.flashcard-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.flashcard-card-description {
+    font-size: 0.875rem;
+    color: #6c757d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin-bottom: 0.75rem;
+}
+
+.flashcard-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.813rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.flashcard-card-tags {
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.flashcard-card-tags .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.flashcard-card-footer {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    font-size: 0.813rem;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.flashcard-card-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.flashcard-card-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover Popup - With bridge to prevent gap issues */
+.flashcard-hover-popup {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 350px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    padding: 1.5rem;
+    margin-left: 10px;
+}
+
+/* Create invisible bridge between card and popup */
+.flashcard-hover-popup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 100%;
+    width: 10px;
+    height: 100%;
+    background: transparent;
+}
+
+.flashcard-explore-card:hover .flashcard-hover-popup,
+.flashcard-hover-popup:hover {
+    opacity: 1;
+    visibility: visible;
+}
+
+.flashcard-hover-popup h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.flashcard-hover-popup .popup-meta {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.flashcard-hover-popup .popup-meta-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #555;
+}
+
+.flashcard-hover-popup .popup-meta-item i {
+    margin-right: 0.5rem;
+    color: #667eea;
+    width: 20px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.flashcard-hover-popup .popup-description {
+    font-size: 0.875rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.flashcard-hover-popup .popup-tags {
+    margin-bottom: 1rem;
+}
+
+.flashcard-hover-popup .popup-tags .badge {
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.flashcard-hover-popup .popup-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.flashcard-hover-popup .popup-actions .btn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.flashcard-hover-popup .popup-actions .btn:first-child {
+    flex: 2;
+}
+
+/* Adjust popup position for cards on the right side */
+.col:nth-child(4n) .flashcard-hover-popup,
+.col:nth-child(4n+4) .flashcard-hover-popup {
+    left: auto;
+    right: 100%;
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+/* Bridge for right-side popups */
+.col:nth-child(4n) .flashcard-hover-popup::before,
+.col:nth-child(4n+4) .flashcard-hover-popup::before {
+    right: auto;
+    left: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .col:nth-child(3n) .flashcard-hover-popup,
+    .col:nth-child(3n+3) .flashcard-hover-popup {
+        left: auto;
+        right: 100%;
+        margin-left: 0;
+        margin-right: 10px;
+    }
+    
+    .col:nth-child(3n) .flashcard-hover-popup::before,
+    .col:nth-child(3n+3) .flashcard-hover-popup::before {
+        right: auto;
+        left: 100%;
+    }
+}
+
+@media (max-width: 992px) {
+    .col:nth-child(2n) .flashcard-hover-popup,
+    .col:nth-child(2n+2) .flashcard-hover-popup {
+        left: auto;
+        right: 100%;
+        margin-left: 0;
+        margin-right: 10px;
+    }
+    
+    .col:nth-child(2n) .flashcard-hover-popup::before,
+    .col:nth-child(2n+2) .flashcard-hover-popup::before {
+        right: auto;
+        left: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .flashcard-hover-popup {
+        display: none;
+    }
+    
+    .flashcard-explore-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Add smooth transition for cards */
+.col {
+    position: relative;
+}
+
+/* Ensure popup stays visible when hovering over it */
+.flashcard-explore-card:hover .flashcard-hover-popup,
+.col:hover .flashcard-hover-popup:hover {
+    opacity: 1;
+    visibility: visible;
+}

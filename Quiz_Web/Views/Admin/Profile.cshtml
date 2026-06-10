@@ -1,0 +1,106 @@
+@model Quiz_Web.Models.Entities.User
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="Profile">
+                    <input type="hidden" asp-for="UserId" />
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Username" class="form-label">Username *</label>
+                                <input asp-for="Username" class="form-control" required maxlength="100" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="FullName" class="form-label">Full Name *</label>
+                                <input asp-for="FullName" class="form-control" required maxlength="200" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email *</label>
+                                <input asp-for="Email" type="email" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Phone" class="form-label">Phone</label>
+                                <input asp-for="Phone" type="tel" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Change Password</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="ChangePassword">
+                    <div class="mb-3">
+                        <label class="form-label">Current Password *</label>
+                        <input type="password" name="CurrentPassword" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Password *</label>
+                        <input type="password" name="NewPassword" class="form-control" required minlength="8" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm New Password *</label>
+                        <input type="password" name="ConfirmPassword" class="form-control" required minlength="8" />
+                    </div>
+                    <button type="submit" class="btn btn-warning">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Profile Info</h4>
+            </div>
+            <div class="card-body text-center">
+                <img src="https://randomuser.me/api/portraits/men/1.jpg" class="rounded-circle mb-3" width="100" height="100" alt="Avatar">
+                <h5>@Model.FullName</h5>
+                <p class="text-muted">@Model.Role?.Name</p>
+                <p><i class="bi bi-envelope"></i> @Model.Email</p>
+                <p><i class="bi bi-telephone"></i> @(Model.Phone ?? "Not provided")</p>
+                <p><i class="bi bi-calendar"></i> Joined @Model.CreatedAt.ToString("MMM yyyy")</p>
+            </div>
+        </div>
+    </div>
+</div>

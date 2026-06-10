@@ -1,0 +1,83 @@
+@model List<Quiz_Web.Models.Entities.Course>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-heart fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Your Wishlist is Empty</h4>
+        <p class="text-muted">Save courses you're interested in to your wishlist!</p>
+        <a href="/courses" class="btn btn-primary mt-3">
+            <i class="fas fa-search me-2"></i>Explore Courses
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var course in Model)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm wishlist-card">
+                    <div class="position-relative">
+                        <img src="@(string.IsNullOrEmpty(course.CoverUrl) ? "/images/default-course.jpg" : course.CoverUrl)" 
+                             class="card-img-top" 
+                             alt="@course.Title"
+                             style="height: 200px; object-fit: cover;">
+                        <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" 
+                                title="Remove from wishlist">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@course.Title</h5>
+                        <p class="card-text text-muted small flex-grow-1">
+                            @(string.IsNullOrEmpty(course.Summary) ? "No description available" : 
+                              (course.Summary.Length > 100 ? course.Summary.Substring(0, 100) + "..." : course.Summary))
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-user me-1"></i>@course.Owner.FullName
+                                </small>
+                                <strong class="text-primary">
+                                    @* @course.Price.ToString("N0") @course.Currency *@
+                                </strong>
+                            </div>
+                            <a href="/course/@course.Slug" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-info-circle me-1"></i>Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .wishlist-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .wishlist-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .wishlist-card .btn-danger {
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+    }
+
+    .wishlist-card .btn-danger:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .wishlist-card .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+</style>

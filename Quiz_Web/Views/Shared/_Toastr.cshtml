@@ -1,0 +1,28 @@
+﻿@{
+    var success = TempData["Success"]?.ToString();
+    var error = TempData["Error"]?.ToString();
+    var info = TempData["Info"]?.ToString();
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script>
+    toastr.options = {
+        positionClass: 'toast-top-right',
+        closeButton: true,
+        progressBar: true,
+        timeOut: 2000
+    };
+    @if (!string.IsNullOrEmpty(success))
+    {
+        <text>toastr.success('@success');</text>
+    }
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <text>toastr.error('@error');</text>
+    }
+    @if (!string.IsNullOrEmpty(info))
+    {
+        <text>toastr.info('@info');</text>
+    }
+</script>
