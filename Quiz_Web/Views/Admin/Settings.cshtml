@@ -1,0 +1,157 @@
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-palette"></i> Theme Settings</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="UpdateTheme">
+                    <div class="mb-3">
+                        <label class="form-label">Choose Theme</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card theme-card" data-theme="light">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-sun fs-1 text-warning"></i>
+                                        <h6>Light Theme</h6>
+                                        <input type="radio" name="Theme" value="light" class="form-check-input" checked>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card theme-card" data-theme="dark">
+                                    <div class="card-body text-center bg-dark text-white">
+                                        <i class="bi bi-moon fs-1 text-info"></i>
+                                        <h6>Dark Theme</h6>
+                                        <input type="radio" name="Theme" value="dark" class="form-check-input">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Theme</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-translate"></i> Language Settings</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="UpdateLanguage">
+                    <div class="mb-3">
+                        <label class="form-label">Choose Language</label>
+                        <select name="Language" class="form-control">
+                            <option value="en">English</option>
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="ja">日本語</option>
+                            <option value="ko">한국어</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date Format</label>
+                        <select name="DateFormat" class="form-control">
+                            <option value="dd/MM/yyyy">DD/MM/YYYY</option>
+                            <option value="MM/dd/yyyy">MM/DD/YYYY</option>
+                            <option value="yyyy-MM-dd">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Time Zone</label>
+                        <select name="TimeZone" class="form-control">
+                            <option value="UTC+7">UTC+7 (Vietnam)</option>
+                            <option value="UTC+9">UTC+9 (Japan/Korea)</option>
+                            <option value="UTC+0">UTC+0 (GMT)</option>
+                            <option value="UTC-5">UTC-5 (EST)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save Language</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-gear"></i> System Preferences</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="UpdatePreferences">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="EmailNotifications" class="form-check-input" checked>
+                                    <label class="form-check-label">Email Notifications</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="SoundNotifications" class="form-check-input">
+                                    <label class="form-check-label">Sound Notifications</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="AutoSave" class="form-check-input" checked>
+                                    <label class="form-check-label">Auto Save</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="ShowTips" class="form-check-input" checked>
+                                    <label class="form-check-label">Show Tips</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-info">Save Preferences</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<style>
+.theme-card {
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.theme-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+<script>
+$(document).ready(function() {
+    $('.theme-card').click(function() {
+        var theme = $(this).data('theme');
+        $(this).find('input[type="radio"]').prop('checked', true);
+        $('.theme-card').removeClass('border-primary');
+        $(this).addClass('border-primary');
+    });
+});
+</script>
+}

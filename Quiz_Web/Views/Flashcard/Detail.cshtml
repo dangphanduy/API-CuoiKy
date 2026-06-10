@@ -1,0 +1,207 @@
+@model Quiz_Web.Models.Entities.FlashcardSet
+@{
+    ViewData["Title"] = Model.Title;
+    var isOwner = (ViewBag.IsOwner as bool?) ?? false;
+    var cardCount = Model.Flashcards?.Count ?? 0;
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a asp-controller="Flashcard" asp-action="Index">Flashcards</a>
+                    </li>
+                    <li class="breadcrumb-item active">@Model.Title</li>
+                </ol>
+            </nav>
+
+            <!-- Cover Image -->
+            @if (!string.IsNullOrEmpty(Model.CoverUrl))
+            {
+                <img src="@Model.CoverUrl" class="img-fluid rounded mb-4 w-100" 
+                     alt="@Model.Title" style="max-height: 400px; object-fit: cover;" />
+            }
+
+            <!-- Title and Meta -->
+            <h1 class="display-5 fw-bold mb-3">@Model.Title</h1>
+            
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-user text-muted me-2"></i>
+                    <span class="text-muted">@Model.Owner.FullName</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-credit-card text-info me-2"></i>
+                    <span class="fw-bold text-info">@cardCount thẻ</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-eye text-muted me-2"></i>
+                    <span class="badge @(Model.Visibility == "Public" ? "bg-success" : "bg-secondary")">
+                        @(Model.Visibility == "Public" ? "Công khai" : Model.Visibility == "Private" ? "Riêng tư" : "Không liệt kê")
+                    </span>
+                </div>
+            </div>
+
+            <!-- Description -->
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">
+                            <i class="fa-solid fa-align-left me-2"></i>Mô tả
+                        </h5>
+                        <p class="mb-0">@Model.Description</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Tags -->
+            @if (!string.IsNullOrWhiteSpace(Model.TagsText))
+            {
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">
+                        <i class="fa-solid fa-tags me-2"></i>Tags:
+                    </h6>
+                    @foreach (var tag in Model.TagsText.Split(','))
+                    {
+                        <span class="badge bg-light text-dark me-2 mb-2">@tag.Trim()</span>
+                    }
+                </div>
+            }
+
+            <!-- Language -->
+            @if (!string.IsNullOrWhiteSpace(Model.Language))
+            {
+                <div class="mb-4">
+                    <i class="fa-solid fa-language me-2"></i>
+                    <span class="text-muted">Ngôn ngữ: <strong>@Model.Language</strong></span>
+                </div>
+            }
+
+            <!-- Flashcards List -->
+            @if (cardCount > 0)
+            {
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa-solid fa-list me-2"></i>Danh sách thẻ (@cardCount)
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @foreach (var card in Model.Flashcards.OrderBy(f => f.OrderIndex).Take(10))
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold mb-1">
+                                                <i class="fa-solid fa-circle-question text-info me-2"></i>
+                                                @card.FrontText
+                                            </div>
+                                            <div class="text-muted small">
+                                                <i class="fa-solid fa-circle-check text-success me-2"></i>
+                                                @card.BackText
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        @if (cardCount > 10)
+                        {
+                            <div class="p-3 text-center text-muted">
+                                <small>Và @(cardCount - 10) thẻ khác...</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fa-solid fa-info-circle me-2"></i>
+                    Bộ flashcard này chưa có thẻ nào.
+                </div>
+            }
+
+            <!-- Owner Actions -->
+            @if (isOwner)
+            {
+                <div class="d-flex gap-2 mt-4">
+                    <a asp-action="Edit" asp-route-id="@Model.SetId" class="btn btn-warning">
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Chỉnh sửa
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@Model.SetId" method="post" 
+                          onsubmit="return confirm('Bạn có chắc muốn xóa bộ flashcard này?');" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fa-solid fa-trash-can me-2"></i>Xóa
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow sticky-top" style="top: 20px;">
+                <div class="card-body text-center">
+                    <h5 class="fw-bold mb-3">Sẵn sàng học chưa?</h5>
+                    <div class="d-grid gap-2">
+                        <a asp-action="Study" asp-route-setId="@Model.SetId" class="btn btn-info btn-lg text-white">
+                            <i class="fa-solid fa-play me-2"></i>Bắt đầu học
+                        </a>
+                        @if (isOwner)
+                        {
+                            <a asp-action="My" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Quay lại danh sách
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Xem bộ khác
+                            </a>
+                        }
+                    </div>
+
+                    <!-- Stats -->
+                    <hr class="my-4" />
+                    <div class="text-start">
+                        <h6 class="fw-bold mb-3">Thông tin</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Số thẻ:</span>
+                            <span class="fw-bold">@cardCount</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tạo lúc:</span>
+                            <span class="fw-bold">@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Cập nhật:</span>
+                                <span class="fw-bold">@Model.UpdatedAt.Value.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .list-group-item {
+            transition: background-color 0.2s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+}

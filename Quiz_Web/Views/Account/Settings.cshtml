@@ -1,0 +1,102 @@
+﻿@model Quiz_Web.Models.Entities.User
+@{
+    ViewData["Title"] = "Tài khoản";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/account-settings.css" asp-append-version="true" />
+
+<div class="account-settings-container">
+    <div class="account-settings-content">
+        <h1 class="page-title">Tài khoản</h1>
+        
+        <!-- Tabs Navigation -->
+        <div class="tabs-navigation">
+            <a href="@Url.Action("Settings", "Account")" class="tab-link active">Cài đặt tài khoản</a>
+            <a href="@Url.Action("Profile", "Account")" class="tab-link">Chỉnh sửa hồ sơ</a>
+            <a href="@Url.Action("PurchaseHistory", "Account")" class="tab-link">Lịch sử mua hàng</a>
+        </div>
+
+        <!-- Account Settings Content -->
+        <div class="settings-section">
+            @Html.AntiForgeryToken()
+            
+            <!-- Email Field -->
+            <div class="field-group">
+                <label class="field-label">Email</label>
+                <div class="field-row">
+                    <input type="email" 
+                           id="emailInput" 
+                           class="field-input" 
+                           value="@Model.Email" 
+                           disabled />
+                    <button type="button" 
+                            class="edit-btn" 
+                            id="editEmailBtn"
+                            title="Chỉnh sửa mail">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </div>
+                <div id="emailEditForm" class="edit-form" style="display: none;">
+                    <input type="email" 
+                           id="newEmailInput" 
+                           class="field-input mt-2" 
+                           placeholder="Nhập email mới" />
+                    <div class="form-actions mt-2">
+                        <button type="button" class="btn-save" id="saveEmailBtn">Lưu</button>
+                        <button type="button" class="btn-cancel" id="cancelEmailBtn">Hủy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="field-group">
+                <label class="field-label">Mật khẩu</label>
+                <div class="field-row">
+                    <input type="password" 
+                           class="field-input" 
+                           value="••••••••" 
+                           disabled />
+                    <button type="button" 
+                            class="edit-btn" 
+                            id="editPasswordBtn"
+                            title="Đổi mật khẩu">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </div>
+                <div id="passwordEditForm" class="edit-form" style="display: none;">
+                    <input type="password" 
+                           id="currentPasswordInput" 
+                           class="field-input mt-2" 
+                           placeholder="Mật khẩu hiện tại" />
+                    <input type="password" 
+                           id="newPasswordInput" 
+                           class="field-input mt-2" 
+                           placeholder="Mật khẩu mới" />
+                    <input type="password" 
+                           id="confirmPasswordInput" 
+                           class="field-input mt-2" 
+                           placeholder="Xác nhận mật khẩu mới" />
+                    <div class="form-actions mt-2">
+                        <button type="button" class="btn-save" id="savePasswordBtn">Lưu</button>
+                        <button type="button" class="btn-cancel" id="cancelPasswordBtn">Hủy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Factor Authentication -->
+            <div class="security-box">
+                <h3 class="security-title">Xác thực đa yếu tố</h3>
+                <p class="security-description">
+                    Xác thực đa yếu tố bổ sung thêm một bước bảo mật cho tài khoản của bạn. Ngoài mật khẩu, bạn sẽ cần nhập mã xác minh được gửi đến thiết bị di động hoặc email của bạn.
+                </p>
+                <button type="button" class="btn-security">Bật xác thực đa yếu tố</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/account-settings.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}

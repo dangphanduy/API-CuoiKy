@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: quiz-web-app
+    ports:
+      - "8080:8080"
+    environment:
+      # Dùng biến ${DB_PASSWORD} ở đây
+      - ConnectionStrings__DefaultConnection=Server=db;Database=LearningPlatform;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=True
+    depends_on:
+      - db
+
+  db:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    container_name: sql-learning-platform
+    environment:
+      - ACCEPT_EULA=Y
+      # Dùng biến ${DB_PASSWORD} ở đây
+      - SA_PASSWORD=${DB_PASSWORD} 
+    volumes:
+      - sql-data:/var/opt/mssql
+
+volumes:
+  sql-data:

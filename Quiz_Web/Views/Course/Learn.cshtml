@@ -1,0 +1,473 @@
+﻿@{
+    ViewData["Title"] = ViewBag.CurrentLesson?.Title ?? "Xem bài học";
+    Layout = "~/Views/Shared/_LayoutLearn.cshtml";
+    
+    var course = ViewBag.Course as Quiz_Web.Models.Entities.Course;
+    var currentChapter = ViewBag.CurrentChapter as Quiz_Web.Models.Entities.CourseChapter;
+    var currentLesson = ViewBag.CurrentLesson as Quiz_Web.Models.Entities.Lesson;
+    var isOwner = (bool)(ViewBag.IsOwner ?? false);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/course/course-learn.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/flashcards/common.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/flashcards/index.css" asp-append-version="true" />
+}
+
+<div class="container-fluid course-player-container">
+    <div class="row g-0">
+        <!-- Left Column: Video & Content Area (70%) -->
+        <div class="col-lg-9 main-content-area">
+            @* <!-- Video Player Section - Only show if lesson has video --> *@
+            @{
+                var hasVideo = currentLesson?.LessonContents != null && 
+                               currentLesson.LessonContents.Any(c => c.ContentType == "Video" && !string.IsNullOrEmpty(c.VideoUrl));
+            }
+            
+            @if (hasVideo)
+            {
+                var videoContent = currentLesson.LessonContents
+                    .Where(c => c.ContentType == "Video" && !string.IsNullOrEmpty(c.VideoUrl))
+                    .OrderBy(c => c.OrderIndex)
+                    .FirstOrDefault();
+                
+                <div class="video-player-section">
+                    <video id="videoPlayer" class="video-js vjs-default-skin" controls preload="auto" 
+                           data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
+                        <source src="@videoContent.VideoUrl" type="video/mp4">
+                        Trình duyệt của bạn không hỗ trợ video HTML5.
+                    </video>
+                </div>
+            }
+
+            <!-- Lesson Title & Navigation -->
+            <div class="lesson-header">
+                <h3 class="lesson-title">@currentLesson?.Title</h3>
+                <div class="lesson-navigation">
+                    <button class="btn btn-outline-primary" id="prevLessonBtn" title="Bài học trước">
+                        <i class="fas fa-chevron-left me-1"></i> Trước
+                    </button>
+                    <button class="btn btn-outline-primary" id="nextLessonBtn" title="Bài học tiếp theo">
+                        Tiếp <i class="fas fa-chevron-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ✅ THÊM SECTION NỘI DUNG BÀI HỌC -->
+            @if (currentLesson?.LessonContents != null && currentLesson.LessonContents.Any(c => c.ContentType != "Video"))
+            {
+                <div class="lesson-contents-section">
+                    <h4 class="contents-section-title">
+                        <i class="fas fa-book-open me-2"></i>Nội dung bài học
+                    </h4>
+                    
+                    <div class="contents-list">
+                        @foreach (var content in currentLesson.LessonContents.OrderBy(c => c.OrderIndex))
+                        {
+                            @if (content.ContentType == "Theory" && !string.IsNullOrEmpty(content.Body))
+                            {
+                                <div class="content-item theory-item" data-content-id="@content.ContentId">
+                                    <div class="content-header">
+                                        <div class="content-icon theory-icon">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                        <div class="content-info">
+                                            <h5 class="content-title">@(content.Title ?? "Lý thuyết")</h5>
+                                            <span class="content-type-badge theory">Lý thuyết</span>
+                                        </div>
+                                    </div>
+                                    <div class="content-preview ck-content">
+                                        @Html.Raw(content.Body)
+                                    </div>
+                                </div>
+                            }
+                            else if (content.ContentType == "FlashcardSet" && content.RefId.HasValue)
+                            {
+                                <div class="content-item flashcard-item" data-content-id="@content.ContentId">
+                                    <div class="content-header">
+                                        <div class="content-icon flashcard-icon">
+                                            <i class="fas fa-layer-group"></i>
+                                        </div>
+                                        <div class="content-info">
+                                            <h5 class="content-title">@(content.Title ?? "Bộ flashcard")</h5>
+                                            <span class="content-type-badge theory">Flashcard</span>
+                                        </div>
+                                    </div>
+                                    <div class="content-action">
+                                        <button 
+                                            class="btn btn-primary content-action-btn flashcard-toggle-btn" 
+                                            data-flashcard-set-id="@content.RefId"
+                                            data-content-id="@content.ContentId">
+                                            <i class="fas fa-play me-2"></i>Luyện tập Flashcard
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- ✅ FLASHCARD EXPANDABLE SECTION -->
+                                    <div class="flashcard-expandable" 
+                                         id="flashcard-expandable-@content.ContentId" 
+                                         style="display: none;"
+                                         data-flashcard-set-id="@content.RefId"
+                                         data-course-slug="@course.Slug"
+                                         data-lesson-id="@currentLesson.LessonId"
+                                         data-content-id="@content.ContentId">
+                                        <div class="flashcard-player-container">
+                                            <!-- Loading State -->
+                                            <div class="flashcard-loading">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Đang tải...</span>
+                                                </div>
+                                                <p class="mt-3">Đang tải flashcards...</p>
+                                            </div>
+                                            
+                                            <!-- Flashcard Player (will be populated by JS) -->
+                                            <div class="flashcard-player" style="display: none;">
+                                                <!-- Counter -->
+                                                <div class="flashcard-counter mb-4 text-center">
+                                                    <span class="text-dark fs-5 fw-medium" id="cardCounter-@content.ContentId">1 / 0 Flashcards</span>
+                                                </div>
+
+                                                <!-- Flashcard -->
+                                                <div class="flashcard-wrapper d-flex align-items-center justify-content-center gap-4">
+                                                    <button class="btn btn-outline-primary rounded-circle nav-btn" 
+                                                            id="prevBtn-@content.ContentId" 
+                                                            onclick="previousCard('@content.ContentId')" 
+                                                            disabled>
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </button>
+                                                
+                                                    <div class="flashcard" id="flashcard-@content.ContentId">
+                                                        <div class="flashcard-inner">
+                                                            <div class="flashcard-front">
+                                                                <div class="card-content p-4">
+                                                                    <p class="text-dark fs-4 mb-0" id="frontText-@content.ContentId">Loading...</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flashcard-back">
+                                                                <div class="card-content p-4">
+                                                                    <p class="text-dark fs-4 mb-0" id="backText-@content.ContentId">Loading...</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                
+                                                    <button class="btn btn-outline-primary rounded-circle nav-btn" 
+                                                            id="nextBtn-@content.ContentId" 
+                                                            onclick="nextCard('@content.ContentId')">
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Instructions -->
+                                                <div class="instructions text-center mt-4">
+                                                    <p class="text-muted small">
+                                                        Nhấn vào flashcard hoặc gõ phím <kbd class="bg-secondary text-white px-2 py-1 rounded">Space</kbd> để lật
+                                                    </p>
+                                                </div>
+
+                                                <!-- Complete Button -->
+                                                <div class="complete-section mb-3 text-center" id="completeSection-@content.ContentId">
+                                                    <button class="btn btn-success btn-lg rounded-pill px-5 shadow" 
+                                                            id="btnComplete-@content.ContentId" 
+                                                            onclick="completeFlashcardSet('@content.ContentId')">
+                                                        <i class="bi bi-check-circle me-2"></i>
+                                                        Hoàn thành
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if (content.ContentType == "Test" && content.RefId.HasValue)
+                            {
+                                <div class="content-item test-item" data-content-id="@content.ContentId">
+                                    <div class="content-header">
+                                        <div class="content-icon test-icon">
+                                            <i class="fas fa-clipboard-check"></i>
+                                        </div>
+                                        <div class="content-info">
+                                            <h5 class="content-title">@(content.Title ?? "Bài kiểm tra")</h5>
+                                            <span class="content-type-badge theory">Kiểm tra</span>
+                                        </div>
+                                    </div>
+                                    <div class="content-action">
+                                        <button 
+                                            class="btn btn-success content-action-btn test-toggle-btn" 
+                                            data-test-id="@content.RefId"
+                                            data-content-id="@content.ContentId">
+                                            <i class="fas fa-pencil-alt me-2"></i>Làm bài kiểm tra
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- ✅ TEST EXPANDABLE SECTION -->
+                                    <div class="test-expandable" 
+                                         id="test-expandable-@content.ContentId" 
+                                         style="display: none;"
+                                         data-test-id="@content.RefId"
+                                         data-course-slug="@course.Slug"
+                                         data-lesson-id="@currentLesson.LessonId"
+                                         data-content-id="@content.ContentId">
+                                        <div class="test-player-container">
+                                            <!-- Loading State -->
+                                            <div class="test-loading">
+                                                <div class="spinner-border text-success" role="status">
+                                                    <span class="visually-hidden">Đang tải...</span>
+                                                </div>
+                                                <p class="mt-3">Đang tải bài kiểm tra...</p>
+                                            </div>
+                                            
+                                            <!-- Test Player (will be populated by JS) -->
+                                            <div class="test-player" style="display: none;">
+                                                <!-- Test Header -->
+                                                <div class="test-header">
+                                                    <h4 class="test-title" id="testTitle-@content.ContentId"></h4>
+                                                    <div class="test-meta">
+                                                        <span class="test-meta-item">
+                                                            <i class="fas fa-clock me-2"></i>
+                                                            <span id="testTime-@content.ContentId">30 phút</span>
+                                                        </span>
+                                                        <span class="test-meta-item">
+                                                            <i class="fas fa-question-circle me-2"></i>
+                                                            <span id="testQuestionCount-@content.ContentId">0 câu hỏi</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Questions Container -->
+                                                <div class="questions-container" id="questionsContainer-@content.ContentId">
+                                                    <!-- Questions will be loaded here -->
+                                                </div>
+
+                                                <!-- Submit Button -->
+                                                <div class="test-submit-section text-center mt-4">
+                                                    <button class="btn btn-success btn-lg" 
+                                                            id="btnSubmitTest-@content.ContentId" 
+                                                            onclick="submitTest('@content.ContentId')">
+                                                        <i class="fas fa-paper-plane me-2"></i>
+                                                        Nộp bài
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Lesson Content Tabs -->
+            <div class="lesson-tabs-section">
+                <ul class="nav nav-tabs" id="lessonTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" 
+                                data-bs-target="#overview" type="button" role="tab">
+                            <i class="fas fa-info-circle me-2"></i>Tổng quan
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" 
+                                data-bs-target="#reviews" type="button" role="tab">
+                            <i class="fas fa-star me-2"></i>Đánh giá (@(course?.TotalReviews ?? 0))
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="notes-tab" data-bs-toggle="tab" 
+                                data-bs-target="#notes" type="button" role="tab">
+                            <i class="fas fa-sticky-note me-2"></i>Ghi chú
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="lessonTabsContent">
+                    <!-- Overview Tab -->
+                    <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                        <div class="tab-content-wrapper">
+                            <h4>Giới thiệu khóa học</h4>
+                            @if (!string.IsNullOrEmpty(course?.Summary))
+                            {
+                                <div class="ck-content">
+                                    @Html.Raw(course.Summary)
+                                </div>
+                            }
+                            
+                            <div class="course-stats mt-4">
+                                <div class="stat-item">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <span><strong>@course?.AverageRating.ToString("0.0")</strong> sao</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-users text-primary"></i>
+                                    <span><strong>@(course?.TotalReviews ?? 0)</strong> đánh giá</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div class="tab-pane fade" id="reviews" role="tabpanel">
+                        <div class="tab-content-wrapper">
+                            <h4>Đánh giá của học viên</h4>
+                            @if (course?.CourseReviews != null && course.CourseReviews.Any())
+                            {
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var review in course.CourseReviews.OrderByDescending(r => r.CreatedAt).Take(10))
+                                    {
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>@review.User.FullName</strong>
+                                                <div class="review-rating">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        if (i <= review.Rating)
+                                                        {
+                                                            <i class="fas fa-star text-warning"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="far fa-star text-warning"></i>
+                                                        }
+                                                    }
+                                                    <span class="ms-2">@review.Rating.ToString("0.0")</span>
+                                                </div>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(review.Comment))
+                                            {
+                                                <p class="mb-1 mt-2">@review.Comment</p>
+                                            }
+                                            <small class="text-muted">@review.CreatedAt.ToString("dd/MM/yyyy")</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Chưa có đánh giá nào.</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Notes Tab -->
+                    <div class="tab-pane fade" id="notes" role="tabpanel">
+                        <div class="tab-content-wrapper">
+                            <h4>Ghi chú</h4>
+                            <p class="text-muted">Tính năng ghi chú đang được phát triển...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Course Sidebar (30%) -->
+        <div class="col-lg-3 course-sidebar">
+            <div class="sidebar-header">
+                <h4 class="sidebar-title">Nội dung khóa học</h4>
+                <div class="course-progress">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%" id="courseProgressBar">
+                            <span>0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                @if (course?.CourseChapters != null && course.CourseChapters.Any())
+                {
+                    <div class="accordion" id="courseContentAccordion">
+                        @foreach (var chapter in course.CourseChapters.OrderBy(c => c.OrderIndex))
+                        {
+                            var isCurrentChapter = chapter.ChapterId == currentChapter?.ChapterId;
+                            var chapterLessons = chapter.Lessons?.OrderBy(l => l.OrderIndex).ToList() ?? new List<Quiz_Web.Models.Entities.Lesson>();
+
+                            <div class="accordion-item chapter-item @(isCurrentChapter ? "current-chapter" : "")">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button @(isCurrentChapter ? "" : "collapsed")" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#chapter-@chapter.ChapterId"
+                                            aria-expanded="@(isCurrentChapter ? "true" : "false")">
+                                        <div class="chapter-info">
+                                            <div class="chapter-title">
+                                                <i class="fas fa-folder-open me-2"></i>
+                                                @chapter.Title
+                                            </div>
+                                            <div class="chapter-stats">
+                                                <small class="text-muted">@chapterLessons.Count bài học</small>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="chapter-@chapter.ChapterId" 
+                                     class="accordion-collapse collapse @(isCurrentChapter ? "show" : "")"
+                                     data-bs-parent="#courseContentAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="lesson-list">
+                                            @foreach (var lesson in chapterLessons)
+                                            {
+                                                var isCurrentLesson = lesson.LessonId == currentLesson?.LessonId;
+                                                var contentTypes = lesson.LessonContents?.Select(c => c.ContentType).ToList() ?? new List<string>();
+                                                var hasVideoInLesson = contentTypes.Contains("Video");
+                                                var hasTest = contentTypes.Contains("Test");
+                                                var hasFlashcard = contentTypes.Contains("FlashcardSet");
+
+                                                <li class="lesson-list-item @(isCurrentLesson ? "current-lesson" : "")">
+                                                    <a href="@Url.Action("Learn", new { slug = course.Slug, chapterId = chapter.ChapterId, lessonId = lesson.LessonId })" 
+                                                       class="lesson-link">
+                                                        <div class="lesson-check">
+                                                            @if (isCurrentLesson)
+                                                            {
+                                                                <i class="fas fa-play-circle text-primary"></i>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="far fa-circle"></i>
+                                                            }
+                                                        </div>
+                                                        <div class="lesson-info-item">
+                                                            <div class="lesson-title-item">@lesson.Title</div>
+                                                            <div class="lesson-meta">
+                                                                @if (hasVideoInLesson)
+                                                                {
+                                                                    <span class="badge bg-primary"><i class="fas fa-video"></i></span>
+                                                                }
+                                                                @if (hasTest)
+                                                                {
+                                                                    <span class="badge bg-success"><i class="fas fa-clipboard-check"></i></span>
+                                                                }
+                                                                @if (hasFlashcard)
+                                                                {
+                                                                    <span class="badge bg-warning"><i class="fas fa-layer-group"></i></span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Khóa học chưa có nội dung.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Video.js for better video player -->
+    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+    
+    <script src="~/js/course/course-learn.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,140 @@
+﻿<!-- Notification Dropdown Component -->
+<link rel="stylesheet" href="~/css/notification-dropdown.css" asp-append-version="true" />
+
+<li class="nav-item dropdown notification-dropdown">
+    <a class="nav-link px-2 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Thông báo">
+        <i class="bi bi-bell"></i>
+        <span class="notification-badge" style="display: none;">0</span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu">
+        <!-- Header -->
+        <div class="notification-header">
+            <span class="notification-title">Thông báo</span>
+            <a href="#" class="notification-settings" title="Cài đặt">
+                <i class="bi bi-gear"></i>
+                Cài đặt
+            </a>
+        </div>
+        
+        <hr class="notification-divider">
+        
+        <!-- Notifications List -->
+        <div class="notification-list">
+            <div class="notification-empty">
+                <i class="bi bi-bell-slash"></i>
+                <p>Không có thông báo</p>
+            </div>
+        </div>
+    </div>
+</li>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadNotifications();
+            
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotifications, 30000);
+        });
+
+        function loadNotifications() {
+            $.ajax({
+                url: '/api/notifications',
+                method: 'GET',
+                success: function(data) {
+                    updateNotificationUI(data);
+                },
+                error: function(error) {
+                    console.error('Error loading notifications:', error);
+                }
+            });
+        }
+
+        function updateNotificationUI(notifications) {
+            const notificationList = $('.notification-list');
+            const badge = $('.notification-badge');
+            const unreadCount = notifications.filter(n => !n.isRead).length;
+
+            // Update badge
+            if (unreadCount > 0) {
+                badge.text(unreadCount > 9 ? '9+' : unreadCount).show();
+            } else {
+                badge.hide();
+            }
+
+            // Update notification list
+            if (notifications.length === 0) {
+                notificationList.html(`
+                    <div class="notification-empty">
+                        <i class="bi bi-bell-slash"></i>
+                        <p>Không có thông báo</p>
+                    </div>
+                `);
+            } else {
+                let html = '';
+                notifications.forEach(function(notification) {
+                    const unreadClass = notification.isRead ? '' : 'unread';
+                    const timeAgo = formatTimeAgo(notification.createdAt);
+                    
+                    html += `
+                        <div class="notification-item ${unreadClass}" data-id="${notification.notificationId}">
+                            <div class="notification-icon">
+                                <i class="bi ${getNotificationIcon(notification.type)}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-item-title">${notification.title}</div>
+                                ${notification.body ? `<div class="notification-item-body">${notification.body}</div>` : ''}
+                                <div class="notification-time">${timeAgo}</div>
+                            </div>
+                            ${!notification.isRead ? '<span class="unread-dot"></span>' : ''}
+                        </div>
+                    `;
+                });
+                notificationList.html(html);
+
+                // Add click handlers
+                $('.notification-item').on('click', function() {
+                    const notificationId = $(this).data('id');
+                    markAsRead(notificationId);
+                });
+            }
+        }
+
+        function markAsRead(notificationId) {
+            $.ajax({
+                url: `/api/notifications/${notificationId}/read`,
+                method: 'POST',
+                success: function() {
+                    loadNotifications();
+                },
+                error: function(error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            });
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                'course_enrolled': 'bi-book',
+                'test_completed': 'bi-check-circle',
+                'certificate_issued': 'bi-award',
+                'payment_received': 'bi-credit-card',
+                'system': 'bi-info-circle',
+                'default': 'bi-bell'
+            };
+            return icons[type] || icons['default'];
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'Vừa xong';
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' phút trước';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' giờ trước';
+            if (seconds < 604800) return Math.floor(seconds / 86400) + ' ngày trước';
+            return date.toLocaleDateString('vi-VN');
+        }
+    </script>
+}

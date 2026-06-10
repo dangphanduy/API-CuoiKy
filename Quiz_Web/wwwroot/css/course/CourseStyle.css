@@ -1,0 +1,64 @@
+﻿/* Course Cards */
+.course-card {
+    transition: all 0.3s ease;
+}
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Badges */
+.badge {
+    font-weight: 600;
+    padding: 0.4em 0.8em;
+}
+
+/* Sticky Sidebar */
+.sticky-top {
+    position: sticky;
+    top: 20px;
+    z-index: 1020;
+}
+.course-content figure.image {
+    margin: 1rem 0;
+}
+
+/* Enforce fixed size; use !important to override width/height attributes */
+    .course-content img,
+    .course-content figure.image img,
+    .ck-content figure.image img{
+        width: auto !important; /* fixed width you want */
+        height: auto !important;
+        max-height: 200px !important;
+        max-width: 100% !important; /* still responsive on smaller screens */
+        display: block;
+    }
+
+    .course-img {
+        width: auto !important; /* fixed width you want */
+        height: auto !important;
+        max-height: 400px !important;
+        max-width: 100% !important; /* still responsive on smaller screens */
+        display: block;
+    }
+
+/* Action buttons style */
+.btn-action{
+  min-width: 36px; /* narrower buttons so action column stays compact */
+  border-radius: .5rem;
+  font-weight: 600;
+  padding: .25rem .5rem;
+}
+.btn-action i{ margin-right:.0rem; }
+
+/* Prevent wrapping inside action col */
+.table td.text-nowrap, .table th.text-nowrap { white-space: nowrap; }
+

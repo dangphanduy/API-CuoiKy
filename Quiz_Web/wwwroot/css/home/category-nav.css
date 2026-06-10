@@ -1,0 +1,179 @@
+/* ===================================
+   Category Navigation Bar
+   Home page category navigation below header
+   =================================== */
+
+/* Container */
+.category-navigation {
+    top: 72px;
+    z-index: 1020;
+    background-color: #fff;
+    border-bottom: 1px solid #d1d7dc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding: 0;
+}
+
+/* Navigation Wrapper */
+.category-nav-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    position: relative;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.category-nav-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* Category Items */
+.category-nav-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 20px;
+    color: #000000;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Hover State */
+.category-nav-item:hover {
+    color: #5624d0;
+    border-bottom-color: #5624d0;
+    background-color: rgba(86, 36, 208, 0.05);
+}
+
+/* Active State */
+.category-nav-item.active {
+    color: #5624d0;
+    font-weight: 700;
+    border-bottom-color: #5624d0;
+}
+
+/* ===================================
+   Responsive Design
+   =================================== */
+
+/* Tablets and below */
+@media (max-width: 992px) {
+    .category-navigation {
+        top: 0;
+        z-index: 1015;
+    }
+    
+    .category-nav-item {
+        padding: 14px 18px;
+        font-size: 13px;
+    }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+    .category-navigation {
+        top: 0;
+        z-index: 1015;
+    }
+    
+    .category-nav-item {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+    
+    .category-navigation {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 576px) {
+    .category-nav-item {
+        padding: 10px 14px;
+        font-size: 12px;
+    }
+}
+
+/* ===================================
+   Scroll Indicators (Optional)
+   =================================== */
+
+/* Add gradient to indicate more content on scroll */
+.category-nav-wrapper::before,
+.category-nav-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-nav-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.category-nav-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.category-nav-wrapper.scroll-left::before {
+    opacity: 1;
+}
+
+.category-nav-wrapper.scroll-right::after {
+    opacity: 1;
+}
+
+/* ===================================
+   Loading State
+   =================================== */
+
+.category-nav-item.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* ===================================
+   Dark Mode Support (Optional)
+   =================================== */
+
+@media (prefers-color-scheme: dark) {
+    .category-navigation {
+        background-color: #1c1d1f;
+        border-bottom-color: #3c3d3f;
+    }
+    
+    .category-nav-item {
+        color: #e0e0e0;
+    }
+    
+    .category-nav-item:hover,
+    .category-nav-item.active {
+        color: #a435f0;
+    }
+    
+    .category-nav-item:hover {
+        background-color: rgba(164, 53, 240, 0.1);
+    }
+}

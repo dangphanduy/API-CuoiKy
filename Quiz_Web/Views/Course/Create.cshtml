@@ -1,0 +1,179 @@
+﻿@model Quiz_Web.Models.ViewModels.CreateCourseViewModel
+@{
+    ViewData["Title"] = "Tạo khóa học mới";
+}
+
+<!-- Hero Section -->
+<section class="py-4 bg-gradient">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h1 class="display-5 fw-bold mb-3">Tạo khóa học mới</h1>
+                <p class="lead">Chia sẻ kiến thức của bạn với hàng triệu học viên trên toàn thế giới</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <!-- Alert Messages -->
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <!-- Course Form Card -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fa-solid fa-graduation-cap me-2"></i>Thông tin khóa học
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form asp-action="Create" asp-controller="Course" method="post" id="courseForm" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+                            
+                            <!-- Title -->
+                            <div class="mb-4">
+                                <label asp-for="Title" class="form-label fw-bold">
+                                    Tiêu đề khóa học <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Title" class="form-control form-control-lg" 
+                                       placeholder="Ví dụ: Lập trình Web với ASP.NET Core" 
+                                       id="titleInput" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                                <small class="text-muted">
+                                    Tiêu đề hấp dẫn sẽ thu hút nhiều học viên hơn
+                                </small>
+                            </div>
+
+                            <!-- Slug -->
+                            <div class="mb-4">
+                                <label asp-for="Slug" class="form-label fw-bold">
+                                    URL slug <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-link"></i>
+                                    </span>
+                                    <input asp-for="Slug" class="form-control" 
+                                           placeholder="lap-trinh-web-aspnet-core" 
+                                           id="slugInput" />
+                                </div>
+                                <span asp-validation-for="Slug" class="text-danger"></span>
+                                <small class="text-muted">
+                                    URL thân thiện cho khóa học của bạn (chỉ chữ thường, số và dấu gạch ngang)
+                                </small>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-4">
+                                <label asp-for="Description" class="form-label fw-bold">
+                                    Mô tả khóa học
+                                </label>
+                                <textarea asp-for="Description" class="form-control" id="Description" rows="10"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <!-- Cover URL -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Ảnh bìa (tải từ máy)</label>
+                                <input type="file" name="coverFile" accept="image/*" class="form-control" />
+                                <span asp-validation-for="CoverUrl" class="text-danger"></span>
+                            </div>
+
+                            <!-- Price and Currency Row -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label asp-for="Price" class="form-label fw-bold">
+                                        Giá khóa học
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fa-solid fa-dollar-sign"></i>
+                                        </span>
+                                        <input asp-for="Price" type="number" class="form-control" id="priceInput" placeholder="0" min="0" step="0.01" />
+                                    </div>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                    <small class="text-muted">
+                                        Để trống hoặc 0 nếu khóa học miễn phí
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Currency" class="form-label fw-bold">
+                                        Đơn vị tiền tệ
+                                    </label>
+                                    <select asp-for="Currency" class="form-select" id="currencySelect">
+                                        <option value="VND">VND - Việt Nam Đồng</option>
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                    </select>
+                                    <span asp-validation-for="Currency" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Publish Status -->
+                            @* <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsPublished" class="form-check-input" 
+                                           type="checkbox" role="switch" />
+                                    <label asp-for="IsPublished" class="form-check-label fw-bold">
+                                        Xuất bản khóa học ngay
+                                    </label>
+                                </div>
+                                <small class="text-muted">
+                                    Nếu chưa chọn, khóa học sẽ ở trạng thái nháp và chỉ bạn mới thấy được
+                                </small>
+                            </div> *@
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-3 justify-content-end mt-4">
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fa-solid fa-times me-2"></i>Hủy
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fa-solid fa-check me-2"></i>Tạo khóa học
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tips Card -->
+                <div class="card shadow-sm mt-4 border-info">
+                    <div class="card-header bg-info bg-opacity-10">
+                        <h5 class="mb-0 text-info">
+                            <i class="fa-solid fa-lightbulb me-2"></i>Mẹo tạo khóa học thu hút
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li class="mb-2">Tiêu đề ngắn gọn, dễ hiểu và chứa từ khóa quan trọng</li>
+                            <li class="mb-2">Mô tả rõ ràng những gì học viên sẽ học được sau khóa học</li>
+                            <li class="mb-2">Sử dụng ảnh bìa chất lượng cao và liên quan đến nội dung</li>
+                            <li class="mb-2">Định giá hợp lý dựa trên giá trị mà khóa học mang lại</li>
+                            <li>Bắt đầu với khóa học miễn phí để xây dựng uy tín</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link href="~/css/course/course-create.css" rel="stylesheet" asp-append-version="true"/>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script src="~/js/course/course-create.js" asp-append-version="true"></script>
+}
