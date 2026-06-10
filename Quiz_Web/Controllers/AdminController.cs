@@ -89,6 +89,95 @@ namespace Quiz_Web.Controllers
 			return Json(data);
 		}
 
+		// CATEGORY MANAGEMENT
+		public async Task<IActionResult> Categories()
+		{
+			var categories = await _context.CourseCategories.ToListAsync();
+			return View(categories);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> CreateCategory(CourseCategory category)
+		{
+			if (string.IsNullOrWhiteSpace(category.Name) || category.Name.Length > 100)
+			{
+				TempData["Error"] = "Tên danh mục là bắt buộc và không quá 100 ký tự";
+				return RedirectToAction("Categories");
+			}
+
+			if (string.IsNullOrWhiteSpace(category.Slug) || category.Slug.Length > 100)
+			{
+				TempData["Error"] = "Slug là bắt buộc và không quá 100 ký tự";
+				return RedirectToAction("Categories");
+			}
+
+			if (await _context.CourseCategories.AnyAsync(c => c.Slug == category.Slug.ToLower().Trim()))
+			{
+				TempData["Error"] = "Slug đã tồn tại";
+				return RedirectToAction("Categories");
+			}
+
+			category.Name = category.Name.Trim();
+			category.Slug = category.Slug.ToLower().Trim();
+			category.Description = category.Description?.Trim();
+
+			_context.CourseCategories.Add(category);
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "Tạo danh mục thành công";
+			return RedirectToAction("Categories");
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> EditCategory(int id, string name, string slug, string description)
+		{
+			try
+			{
+				if (string.IsNullOrWhiteSpace(name))
+				{
+					return Json(new { success = false, message = "Tên danh mục không được để trống" });
+				}
+
+				var category = await _context.CourseCategories.FindAsync(id);
+				if (category == null)
+				{
+					return Json(new { success = false, message = "Không tìm thấy danh mục" });
+				}
+
+				// Check if slug already exists (excluding current category)
+				if (!string.IsNullOrWhiteSpace(slug) && await _context.CourseCategories
+					.AnyAsync(c => c.Slug == slug.ToLower().Trim() && c.CategoryId != id))
+				{
+					return Json(new { success = false, message = "Slug đã tồn tại" });
+				}
+
+				category.Name = name.Trim();
+				category.Slug = slug?.ToLower().Trim() ?? category.Slug;
+				category.Description = description?.Trim();
+				await _context.SaveChangesAsync();
+
+				return Json(new { success = true, message = "Cập nhật danh mục thành công" });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+			}
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteCategory(int id)
+		{
+			var category = await _context.CourseCategories.FindAsync(id);
+			if (category != null)
+			{
+				_context.CourseCategories.Remove(category);
+				await _context.SaveChangesAsync();
+				TempData["Success"] = "Xóa danh mục thành công";
+			}
+			return RedirectToAction("Categories");
+		}
+
 		// TEST MANAGEMENT
 		public async Task<IActionResult> Tests()
 		{
