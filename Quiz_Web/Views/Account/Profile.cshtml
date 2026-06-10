@@ -1,0 +1,61 @@
+﻿@model Quiz_Web.Models.Entities.User
+@{
+    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/account-settings.css" asp-append-version="true" />
+
+<div class="account-settings-container">
+    <div class="account-settings-content">
+        <h1 class="page-title">Tài khoản</h1>
+        
+        <!-- Tabs Navigation -->
+        <div class="tabs-navigation">
+            <a href="@Url.Action("Settings", "Account")" class="tab-link">Cài đặt tài khoản</a>
+            <a href="@Url.Action("Profile", "Account")" class="tab-link active">Chỉnh sửa hồ sơ</a>
+            <a href="@Url.Action("PurchaseHistory", "Account")" class="tab-link">Lịch sử mua hàng</a>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="settings-section">
+            @Html.AntiForgeryToken()
+            
+            <div class="field-group">
+                <label class="field-label">Họ và tên</label>
+                <input type="text" 
+                       id="fullNameInput" 
+                       class="field-input" 
+                       value="@Model.FullName" />
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Tên người dùng</label>
+                <input type="text" 
+                       id="usernameInput" 
+                       class="field-input" 
+                       value="@Model.Username" 
+                       disabled />
+                <small class="text-muted">Tên người dùng không thể thay đổi</small>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Số điện thoại</label>
+                <input type="tel" 
+                       id="phoneInput" 
+                       class="field-input" 
+                       value="@Model.Phone" 
+                       placeholder="Nhập số điện thoại" />
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-save" id="saveProfileBtn">lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/account-profile.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}

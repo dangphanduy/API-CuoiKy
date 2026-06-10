@@ -1,0 +1,204 @@
+@model Quiz_Web.Models.ViewModels.RevenuePaymentsViewModel
+@{
+    ViewData["Title"] = "Doanh thu & Thanh toán";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Doanh thu & Thanh toán</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Doanh thu & Thanh toán</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalRevenue.ToString("C0")</h4>
+                    <p class="mb-0">Doanh thu Admin (40%)</p>
+                    <small class="text-white-50">Phí nền tảng - Instructor nhận 60%</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h4>@Model.MonthlyGrowth.ToString("F1")%</h4>
+                    <p class="mb-0">Tăng trưởng tháng này</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card bg-light">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Doanh thu Admin theo tháng (40%)</h5>
+                    <small class="text-white-50">Phí nền tảng - Instructor nhận 60%</small>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyRevenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Doanh thu Admin theo phương thức (40%)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="paymentMethodChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Selling Courses -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Top 10 khóa học - Doanh thu Admin (40%)</h5>
+                    <small class="text-muted">60% còn lại được chia cho instructor</small>
+                </div>
+                <div class="card-body">
+                    <canvas id="topSellingChart" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Monthly Revenue Area Chart
+        const revenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenue.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Doanh thu Admin (40%)',
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyRevenue.Select(x => x.Value))),
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.3)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND'
+                                }).format(value);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Doanh thu Admin (40%): ' + new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND'
+                                }).format(context.parsed.y);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Payment Method Pie Chart
+        const paymentCtx = document.getElementById('paymentMethodChart').getContext('2d');
+        new Chart(paymentCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.RevenueBySource.Select(x => x.Label))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.RevenueBySource.Select(x => x.Value))),
+                    backgroundColor: @Html.Raw(Json.Serialize(Model.RevenueBySource.Select(x => x.Color)))
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ' (Admin 40%): ' + new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND'
+                                }).format(context.raw);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Top Selling Courses Bar Chart
+        const topSellingCtx = document.getElementById('topSellingChart').getContext('2d');
+        new Chart(topSellingCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.TopSellingCourses.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Doanh thu Admin (40%)',
+                    data: @Html.Raw(Json.Serialize(Model.TopSellingCourses.Select(x => x.Value))),
+                    backgroundColor: 'rgba(255, 159, 64, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND'
+                                }).format(value);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Doanh thu Admin (40%): ' + new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND'
+                                }).format(context.raw);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

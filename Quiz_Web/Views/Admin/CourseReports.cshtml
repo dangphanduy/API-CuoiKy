@@ -1,0 +1,102 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Báo cáo khóa học";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Báo cáo khóa học & chất lượng nội dung</h2>
+    <div class="btn-group">
+        <button type="button" class="btn btn-success" onclick="doExportCSV()">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Xuất CSV
+        </button>
+        <button type="button" class="btn btn-primary" onclick="doExportExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalCourses</h4>
+                        <p class="mb-0">Tổng khóa học</p>
+                    </div>
+                    <i class="bi bi-book fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.PublishedCourses</h4>
+                        <p class="mb-0">Đã xuất bản</p>
+                    </div>
+                    <i class="bi bi-check-circle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalPurchases</h4>
+                        <p class="mb-0">Lượt mua</p>
+                    </div>
+                    <i class="bi bi-cart-check fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Khóa học phổ biến nhất</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Khóa học</th>
+                            <th>Số lượt mua</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in Model.PopularCourses)
+                        {
+                            <tr>
+                                <td>@course.Course</td>
+                                <td>@course.Purchases</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="~/js/admin/export-reports.js"></script>
+    <script>
+        // ✅ FIX: Đổi tên function để tránh đệ quy vô hạn
+        function doExportCSV() { 
+            exportToCSV('Báo cáo khóa học'); 
+        }
+        function doExportExcel() { 
+            exportToExcel('Báo cáo khóa học'); 
+        }
+    </script>
+}

@@ -1,0 +1,147 @@
+@model Quiz_Web.Models.ViewModels.UserAnalyticsViewModel
+@{
+    ViewData["Title"] = "Thống kê người dùng";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Thống kê người dùng</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Thống kê người dùng</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalActiveUsers</h4>
+                    <p class="mb-0">Người dùng hoạt động (30 ngày)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h4>@Model.NewUsersThisMonth</h4>
+                    <p class="mb-0">Người dùng mới tháng này</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Phân bố theo vai trò</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="userRoleChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card bg-light">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Người dùng mới theo tháng</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="newUsersChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Users Chart -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Người dùng hoạt động hàng ngày</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="activeUsersChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // User Role Pie Chart
+        const roleCtx = document.getElementById('userRoleChart').getContext('2d');
+        new Chart(roleCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.UsersByRole.Select(x => x.Label))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.UsersByRole.Select(x => x.Value))),
+                    backgroundColor: @Html.Raw(Json.Serialize(Model.UsersByRole.Select(x => x.Color)))
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // New Users Bar Chart
+        const newUsersCtx = document.getElementById('newUsersChart').getContext('2d');
+        new Chart(newUsersCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.NewUsersPerMonth.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Người dùng mới',
+                    data: @Html.Raw(Json.Serialize(Model.NewUsersPerMonth.Select(x => x.Value))),
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Active Users Line Chart
+        const activeUsersCtx = document.getElementById('activeUsersChart').getContext('2d');
+        new Chart(activeUsersCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ActiveUsersData.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Người dùng hoạt động',
+                    data: @Html.Raw(Json.Serialize(Model.ActiveUsersData.Select(x => x.Value))),
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

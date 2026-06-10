@@ -1,0 +1,161 @@
+/* ==================== FILTER SIDEBAR STYLES ==================== */
+.filter-sidebar {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 90px; /* Adjusted to account for header height */
+}
+
+.filter-section {
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.filter-header {
+    width: 100%;
+    background: white;
+    border: none;
+    padding: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 16px;
+    color: #212529;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.filter-header:hover {
+    color: #0d6efd;
+}
+
+.filter-header i {
+    font-size: 12px;
+    transition: transform 0.3s;
+}
+
+.filter-header[aria-expanded="false"] i {
+    transform: rotate(-90deg);
+}
+
+.filter-body {
+    padding-top: 12px;
+}
+
+.filter-body .form-check {
+    padding-left: 1.5em;
+    margin-bottom: 10px;
+}
+
+.filter-body .form-check-input {
+    cursor: pointer;
+    margin-top: 0.2em;
+    border: 1px solid #dee2e6;
+}
+
+.filter-body .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.filter-body .form-check-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #495057;
+}
+
+.filter-body .form-check-input:checked ~ .form-check-label {
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+.filter-body .stars {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.filter-body .stars i {
+    font-size: 12px;
+}
+
+/* ==================== SORT DROPDOWN STYLES ==================== */
+.sort-dropdown select {
+    min-width: 200px;
+    cursor: pointer;
+    border-color: #dee2e6;
+    font-size: 14px;
+}
+
+.sort-dropdown select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* ==================== COURSE CARD STYLES ==================== */
+.course-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.course-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 48px;
+    line-height: 1.4;
+    max-height: 3.36em;
+}
+
+/* ==================== RATING STYLES ==================== */
+.rating-section { display: flex; align-items: center; font-size: 14px; }
+.rating-value { font-size: 16px; }
+.stars i { font-size: 12px; }
+.stars .fa-star, .stars .fa-star-half-stroke { color: #f59e0b; }
+.stars .fa-star.fa-regular { color: #d1d5db; }
+
+/* ==================== PAGINATION STYLES ==================== */
+.pagination .page-link {
+    border-radius: 8px;
+    margin: 0 4px;
+    border: 1px solid #dee2e6;
+    color: #0d6efd;
+    padding: 8px 12px;
+}
+
+.pagination .page-item.active .page-link { background: #0d6efd; border-color: #0d6efd; }
+.pagination .page-link:hover { background: #e7f1ff; border-color: #0d6efd; }
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 992px) {
+    .filter-sidebar {
+        position: static;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sort-dropdown select {
+        min-width: 150px;
+        font-size: 13px;
+    }
+}
