@@ -1,0 +1,148 @@
+@model List<Quiz_Web.Models.Entities.Test>
+@{
+    ViewData["Title"] = "Quản lý bài kiểm tra";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Quản lý bài kiểm tra</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTestModal">
+        <i class="fas fa-plus"></i> Tạo bài kiểm tra
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table id="testsTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tiêu đề</th>
+                    <th>Chủ sở hữu</th>
+                    <th>Hiển thị</th>
+                    <th>Thời gian</th>
+                    <th>Ngày tạo</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var test in Model)
+                {
+                    <tr>
+                        <td>@test.TestId</td>
+                        <td>@test.Title</td>
+                        <td>@test.Owner?.FullName</td>
+                        <td>
+                            <span class="badge @(test.Visibility == "public" ? "bg-success" : "bg-warning")">
+                                @(test.Visibility == "public" ? "Công khai" : "Riêng tư")
+                            </span>
+                        </td>
+                        <td>@(test.TimeLimitSec?.ToString() ?? "Không giới hạn") phút</td>
+                        <td>@test.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <a href="@Url.Action("TestDetails", new { id = test.TestId })" 
+                               class="btn btn-sm btn-outline-info">Chi tiết</a>
+                            <a href="@Url.Action("EditTest", new { id = test.TestId })" class="btn btn-sm btn-outline-primary">Sửa</a>
+                            <form method="post" asp-action="DeleteTest" class="d-inline">
+                                <input type="hidden" name="id" value="@test.TestId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function() {
+    $('#testsTable').DataTable({
+        responsive: true,
+        pageLength: 10,
+        order: [[0, 'desc']],
+        columnDefs: [
+            { orderable: false, targets: [6] }
+        ],
+        language: {
+            search: "Tìm kiếm bài kiểm tra:",
+            lengthMenu: "Hiển thị _MENU_ bài kiểm tra mỗi trang",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ bài kiểm tra",
+            paginate: {
+                first: "Đầu tiên",
+                last: "Cuối cùng",
+                next: "Tiếp theo",
+                previous: "Trước đó"
+            }
+        }
+    });
+});
+</script>
+}
+
+<!-- Create Test Modal -->
+<div class="modal fade" id="createTestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-action="CreateTest">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tạo bài kiểm tra mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tiêu đề</label>
+                        <input type="text" name="Title" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea name="Description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Thời gian giới hạn (phút)</label>
+                        <input type="number" name="TimeLimitSec" class="form-control" min="1" max="1440" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số lần thử tối đa</label>
+                        <input type="number" name="MaxAttempts" class="form-control" min="1" max="10" value="3" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hiển thị</label>
+                        <select name="Visibility" class="form-control">
+                            <option value="public">Công khai</option>
+                            <option value="private">Riêng tư</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Chế độ chấm điểm</label>
+                        <select name="GradingMode" class="form-control">
+                            <option value="auto">Tự động</option>
+                            <option value="manual">Thủ công</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Tạo bài kiểm tra</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

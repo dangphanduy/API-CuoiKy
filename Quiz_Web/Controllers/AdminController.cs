@@ -89,6 +89,228 @@ namespace Quiz_Web.Controllers
 			return Json(data);
 		}
 
+		// TEST MANAGEMENT
+		public async Task<IActionResult> Tests()
+		{
+			var tests = await _context.Tests.Include(t => t.Owner).ToListAsync();
+			return View(tests);
+		}
+
+		public async Task<IActionResult> TestDetails(int id)
+		{
+			var test = await _context.Tests
+				.Include(t => t.Questions)
+					.ThenInclude(q => q.QuestionOptions)
+				.FirstOrDefaultAsync(t => t.TestId == id);
+			return View(test);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> CreateTest(Test test)
+		{
+			// Custom validation
+			if (string.IsNullOrWhiteSpace(test.Title) || test.Title.Length > 200)
+			{
+				TempData["Error"] = "Title is required and cannot exceed 200 characters";
+				return RedirectToAction("Tests");
+			}
+
+			if (test.TimeLimitSec.HasValue && (test.TimeLimitSec < 1 || test.TimeLimitSec > 1440))
+			{
+				TempData["Error"] = "Time limit must be between 1 and 1440 minutes";
+				return RedirectToAction("Tests");
+			}
+
+			if (test.MaxAttempts < 1 || test.MaxAttempts > 10)
+			{
+				TempData["Error"] = "Max attempts must be between 1 and 10";
+				return RedirectToAction("Tests");
+			}
+
+			if (!string.IsNullOrEmpty(test.Visibility) && test.Visibility != "public" && test.Visibility != "private")
+			{
+				TempData["Error"] = "Visibility must be either public or private";
+				return RedirectToAction("Tests");
+			}
+
+			if (!string.IsNullOrEmpty(test.GradingMode) && test.GradingMode != "auto" && test.GradingMode != "manual")
+			{
+				TempData["Error"] = "Grading mode must be either auto or manual";
+				return RedirectToAction("Tests");
+			}
+
+			test.Title = test.Title.Trim();
+			test.Description = test.Description?.Trim();
+			test.Visibility = test.Visibility ?? "private";
+			test.GradingMode = test.GradingMode ?? "auto";
+			test.OwnerId = GetCurrentUserId();
+			test.CreatedAt = DateTime.UtcNow;
+
+			_context.Tests.Add(test);
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "Test created successfully";
+			return RedirectToAction("Tests");
+		}
+
+		public async Task<IActionResult> EditTest(int id)
+		{
+			var test = await _context.Tests.FindAsync(id);
+			if (test == null) return NotFound();
+
+			var model = new Test
+			{
+				TestId = test.TestId,
+				Title = test.Title,
+				Description = test.Description,
+				TimeLimitSec = test.TimeLimitSec,
+				Visibility = test.Visibility,
+				GradingMode = test.GradingMode,
+				MaxAttempts = test.MaxAttempts
+			};
+
+			return View(model);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> EditTest(Test model)
+		{
+			// Custom validation
+			if (string.IsNullOrWhiteSpace(model.Title) || model.Title.Length > 200)
+			{
+				TempData["Error"] = "Title is required and cannot exceed 200 characters";
+				return View(model);
+			}
+
+			if (model.TimeLimitSec.HasValue && (model.TimeLimitSec < 1 || model.TimeLimitSec > 1440))
+			{
+				TempData["Error"] = "Time limit must be between 1 and 1440 minutes";
+				return View(model);
+			}
+
+			if (model.MaxAttempts < 1 || model.MaxAttempts > 10)
+			{
+				TempData["Error"] = "Max attempts must be between 1 and 10";
+				return View(model);
+			}
+
+			if (!string.IsNullOrEmpty(model.Visibility) && model.Visibility != "public" && model.Visibility != "private")
+			{
+				TempData["Error"] = "Visibility must be either public or private";
+				return View(model);
+			}
+
+			if (!string.IsNullOrEmpty(model.GradingMode) && model.GradingMode != "auto" && model.GradingMode != "manual")
+			{
+				TempData["Error"] = "Grading mode must be either auto or manual";
+				return View(model);
+			}
+
+			var test = await _context.Tests.FindAsync(model.TestId);
+			if (test == null) return NotFound();
+
+			test.Title = model.Title.Trim();
+			test.Description = model.Description?.Trim();
+			test.TimeLimitSec = model.TimeLimitSec;
+			test.Visibility = model.Visibility ?? "private";
+			test.GradingMode = model.GradingMode ?? "auto";
+			test.MaxAttempts = model.MaxAttempts;
+
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "Test updated successfully";
+			return RedirectToAction("Tests");
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteTest(int id)
+		{
+			var test = await _context.Tests.FindAsync(id);
+			if (test != null)
+			{
+				_context.Tests.Remove(test);
+				await _context.SaveChangesAsync();
+				TempData["Success"] = "Test deleted successfully";
+			}
+			return RedirectToAction("Tests");
+		}
+
+		// QUESTION MANAGEMENT
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> AddQuestion(int TestId, string StemText, decimal Points, string Type, string[] OptionTexts, int CorrectOption)
+		{
+			// Custom validation
+			if (string.IsNullOrWhiteSpace(StemText))
+			{
+				TempData["Error"] = "Question text is required";
+				return RedirectToAction("TestDetails", new { id = TestId });
+			}
+
+			if (!Validation.IsValidPoints(Points))
+			{
+				TempData["Error"] = "Points must be between 0.1 and 100";
+				return RedirectToAction("TestDetails", new { id = TestId });
+			}
+
+			if (Type == "multiple_choice" && (OptionTexts == null || !OptionTexts.Any(o => !string.IsNullOrWhiteSpace(o))))
+			{
+				TempData["Error"] = "At least one option is required for multiple choice questions";
+				return RedirectToAction("TestDetails", new { id = TestId });
+			}
+
+			var question = new Question
+			{
+				TestId = TestId,
+				StemText = StemText.Trim(),
+				Points = Points,
+				Type = Type,
+				OrderIndex = await _context.Questions.Where(q => q.TestId == TestId).CountAsync() + 1
+			};
+
+			_context.Questions.Add(question);
+			await _context.SaveChangesAsync();
+
+			// Add options for multiple choice
+			if (Type == "multiple_choice" && OptionTexts != null)
+			{
+				for (int i = 0; i < OptionTexts.Length; i++)
+				{
+					if (!string.IsNullOrWhiteSpace(OptionTexts[i]))
+					{
+						_context.QuestionOptions.Add(new QuestionOption
+						{
+							QuestionId = question.QuestionId,
+							OptionText = OptionTexts[i].Trim(),
+							IsCorrect = i == CorrectOption,
+							OrderIndex = i + 1
+						});
+					}
+				}
+				await _context.SaveChangesAsync();
+			}
+
+			TempData["Success"] = "Question added successfully";
+			return RedirectToAction("TestDetails", new { id = TestId });
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteQuestion(int id)
+		{
+			var question = await _context.Questions.Include(q => q.QuestionOptions).FirstOrDefaultAsync(q => q.QuestionId == id);
+			if (question != null)
+			{
+				_context.QuestionOptions.RemoveRange(question.QuestionOptions);
+				_context.Questions.Remove(question);
+				await _context.SaveChangesAsync();
+				TempData["Success"] = "Question deleted successfully";
+				return RedirectToAction("TestDetails", new { id = question.TestId });
+			}
+			return RedirectToAction("Tests");
+		}
+
 		// REPORTS
 		public async Task<IActionResult> UserReports()
 		{
