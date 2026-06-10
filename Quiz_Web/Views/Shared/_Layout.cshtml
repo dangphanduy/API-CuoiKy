@@ -1,0 +1,251 @@
+﻿@inject Quiz_Web.Services.IServices.ICourseService CourseService
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Quiz_Web</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Quiz_Web.styles.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/css/cart-dropdown.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/course/CourseStyle.css" asp-append-version="true"/>
+
+
+    @await RenderSectionAsync("Styles", required:false)
+</head>
+<body data-user-authenticated="@(User.Identity?.IsAuthenticated == true ? "true" : "false")">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                    <img src="~/asset/image/logo/logo.png" alt="Udemy Logo" width="100" height="60">
+                </a>
+
+                <!-- Khám phá (Desktop only) with Dropdown -->
+                <div class="nav-item dropdown explore-dropdown d-none d-lg-flex">
+                    <a class="nav-link text-dark px-3 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Khám phá
+                    </a>
+                    <div class="dropdown-menu explore-dropdown-menu">
+                        <a class="dropdown-item explore-item" href="@Url.Action("Index", "Course")">
+                            @* @if (!string.IsNullOrEmpty(category.IconUrl))
+                            {
+                                <img src="@category.IconUrl" alt="@category.Name" class="explore-icon" />
+                            } *@
+                            <span>Tất cả</span>
+                        </a>
+
+                        @{
+                            var categories = CourseService.GetAllCategories();
+                            foreach (var category in categories)
+                            {
+                                <a class="dropdown-item explore-item" href="@Url.Action("Category", "Course", new { category = category.Slug })">
+                                    @if (!string.IsNullOrEmpty(category.IconUrl))
+                                    {
+                                        <img src="@category.IconUrl" alt="@category.Name" class="explore-icon" />
+                                    }
+                                    <span>@category.Name</span>
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Search Bar -->
+                    <form asp-controller="Course" asp-action="Search" method="get" class="d-flex flex-grow-1 my-2 my-lg-0 mx-lg-4" role="search">
+                        <div class="input-group header-search w-100">
+                            <button type="submit" class="input-group-text bg-transparent border-0" style="cursor: pointer;" title="Tìm kiếm">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <input class="form-control" type="search" name="q" placeholder="Tìm kiếm khóa học..." aria-label="Search" autocomplete="off">
+                        </div>
+                    </form>
+
+                    <!-- Right Navigation Items -->
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center navbar-nav-right">
+                        <!-- Udemy Business -->
+                        @* <li class="nav-item d-none d-xl-flex">
+                            <a class="nav-link text-dark px-3" href="#">Udemy Business</a>
+                        </li> *@
+
+                        <!-- Giảng viên -->
+                        <li class="nav-item d-none d-xl-flex">
+                            <a class="nav-link text-dark px-3" href="@Url.Action("My", "Course")">Giảng viên</a>
+                        </li>
+
+                        <!-- Học tập -->
+                        <li class="nav-item d-none d-xl-flex">
+                            <a class="nav-link text-dark px-3" href="@Url.Action("Library", "Library")">Học tập</a>
+                        </li>
+
+                        <!-- Wishlist/Heart Icon -->
+                        @* <li class="nav-item ms-2">
+                            <a class="nav-link px-2" href="#" title="Danh sách yêu thích">
+                                <i class="bi bi-heart"></i>
+                            </a>
+                        </li> *@
+
+                        <!-- Cart Dropdown -->
+                        @await Html.PartialAsync("_CartDropdown")
+
+                        <!-- Notification Dropdown -->
+                        
+
+                        <!-- User Avatar with Dropdown -->
+                        <li class="nav-item dropdown user-dropdown ms-2">
+                            <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                    @if (User.Identity?.IsAuthenticated == true)
+                                    {
+                                        var fullName = User.Identity.Name ?? "User";
+                                        var initials = string.Join("", fullName.Split(' ').Select(n => n.FirstOrDefault()).Take(2)).ToUpper();
+                                        @initials
+                                    }
+                                    else
+                                    {
+                                        <text>DD</text>
+                                    }
+                                </div>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    var fullName = User.Identity.Name ?? "User";
+                                    var email = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+                                    var initials = string.Join("", fullName.Split(' ').Select(n => n.FirstOrDefault()).Take(2)).ToUpper();
+                                    
+                                    <!-- Khối 1: Thông tin người dùng -->
+                                    <div class="user-info-section">
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar-large bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3">
+                                                @initials
+                                            </div>
+                                            <div class="user-details">
+                                                <div class="user-name">@fullName</div>
+                                                <div class="user-email">@email</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="dropdown-divider my-0">
+
+                                    <!-- Khối 2: Điều hướng chính -->
+                                    <div class="dropdown-section">
+                                        <a class="dropdown-item" href="@Url.Action("Library", "Library")">Học tập</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Checkout")">Giỏ hàng của tôi</a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Bảng điều khiển admin</a>
+                                        }
+
+                                        <a class="dropdown-item" href="@Url.Action("My", "Course")">Bảng điều khiển của giảng viên</a>
+
+                                    </div>
+
+                                    <hr class="dropdown-divider my-0">
+
+                                    <!-- Khối 3: Thông báo -->
+                                    @* <div class="dropdown-section">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
+                                            <span>Thông báo</span>
+                                            <span class="badge bg-purple rounded-circle">2</span>
+                                        </a>
+                                    </div> *@
+
+                                    <hr class="dropdown-divider my-0">
+
+                                    <!-- Khối 4: Cài đặt tài khoản -->
+                                    <div class="dropdown-section">
+                                        <a class="dropdown-item" href="@Url.Action("Settings", "Account")">Cài đặt tài khoản</a>
+                                        <a class="dropdown-item" href="@Url.Action("Profile", "Account")">Chỉnh sửa hồ sơ</a>
+                                        <a class="dropdown-item" href="@Url.Action("PurchaseHistory", "Account")">Lịch sử mua hàng</a>
+                                    </div>
+
+                                    <hr class="dropdown-divider my-0">
+
+                                    <!-- Khối 5: Ngôn ngữ -->
+                                    <div class="dropdown-section">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
+                                            <span>Ngôn ngữ</span>
+                                            <span class="text-muted">
+                                                <i class="bi bi-globe me-1"></i>
+                                                Tiếng Việt
+                                            </span>
+                                        </a>
+                                    </div>
+
+                                    <hr class="dropdown-divider my-0">
+
+                                    <!-- Khối 6: Hồ sơ -->
+                                    @* <div class="dropdown-section">
+                                        <a class="dropdown-item" href="#">Chỉnh sửa hồ sơ</a>
+                                    </div> *@
+
+                                    <hr class="dropdown-divider my-0">
+
+                                    <!-- Khối 7: Hỗ trợ & Đăng xuất -->
+                                    <div class="dropdown-section">
+                                        @* <a class="dropdown-item" href="#">Trợ giúp và Hỗ trợ</a> *@
+                                        <a class="dropdown-item fw-semibold" href="@Url.Action("Logout", "Account")">Đăng xuất</a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Người dùng chưa đăng nhập -->
+                                    <div class="dropdown-section">
+                                        <a class="dropdown-item" href="@Url.Action("Login", "Account")">Đăng nhập</a>
+                                        <a class="dropdown-item" href="@Url.Action("Register", "Account")">Đăng ký</a>
+                                    </div>
+                                }
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+    
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="site-footer text-white py-4">
+        
+
+            <div class="d-flex justify-content-between align-items-center mt-5 flex-wrap gap-3">
+                <a href="#">
+                    <img src="~/asset/image/logo/logo.png" alt="Udemy Logo" width="150" height="100">
+                </a>
+
+                <span class="text-white-50">&copy; 2025 Ymedu, Inc.</span>
+
+                <button class="btn btn-outline-light d-flex align-items-center">
+                    <i class="bi bi-globe me-2"></i> <span>Tiếng Việt</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/cart-dropdown.js" asp-append-version="true"></script>
+    <script src="~/js/course-purchase-check.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    @await Html.PartialAsync("_Toastr")
+</body>
+</html>

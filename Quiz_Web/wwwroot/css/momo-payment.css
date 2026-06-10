@@ -1,0 +1,138 @@
+.momo-payment-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.card {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.momo-logo {
+    filter: brightness(0) invert(1);
+}
+
+.qr-code-container {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.qr-code {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 30px 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #dee2e6;
+}
+
+.divider-text {
+    position: relative;
+    background: white;
+    padding: 0 20px;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.btn-momo {
+    background: linear-gradient(135deg, #a50064 0%, #d82d8b 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-momo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(165, 0, 100, 0.3);
+    color: white;
+}
+
+.status-section {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.order-id-info {
+    border-left: 3px solid #0d6efd;
+}
+
+.instructions ol {
+    padding-left: 20px;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+}
+
+.security-info {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+@@media (max-width: 768px) {
+    .qr-code {
+        max-width: 250px;
+    }
+
+    .momo-logo {
+        height: 40px !important;
+    }
+
+    .card-body {
+        padding: 20px !important;
+    }
+}
+
+/* Loading animation */
+.spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* Success icon animation */
+@@keyframes checkmark {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.bi-check-circle-fill {
+    animation: checkmark 0.5s ease-in-out;
+}

@@ -1,0 +1,156 @@
+@model Quiz_Web.Models.ViewModels.LearningActivitiesViewModel
+@{
+    ViewData["Title"] = "Hoạt động học tập";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Hoạt động học tập</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Hoạt động học tập</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalTestsCompleted</h4>
+                    <p class="mb-0">Tổng bài kiểm tra đã hoàn thành</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalEnrollments</h4>
+                    <p class="mb-0">Tổng lượt đăng ký khóa học</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Bài kiểm tra hoàn thành theo tháng</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="testsCompletedChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Đăng ký khóa học theo tháng</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="enrollmentsChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Courses -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Top 10 khóa học phổ biến</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="popularCoursesChart" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Tests Completed Line Chart
+        const testsCtx = document.getElementById('testsCompletedChart').getContext('2d');
+        new Chart(testsCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.TestsCompletedData.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Bài kiểm tra hoàn thành',
+                    data: @Html.Raw(Json.Serialize(Model.TestsCompletedData.Select(x => x.Value))),
+                    borderColor: '#17a2b8',
+                    backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Enrollments Line Chart
+        const enrollmentsCtx = document.getElementById('enrollmentsChart').getContext('2d');
+        new Chart(enrollmentsCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CoursesEnrolledData.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Đăng ký khóa học',
+                    data: @Html.Raw(Json.Serialize(Model.CoursesEnrolledData.Select(x => x.Value))),
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Popular Courses Bar Chart
+        const popularCtx = document.getElementById('popularCoursesChart').getContext('2d');
+        new Chart(popularCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.PopularCourses.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Số lượt đăng ký',
+                    data: @Html.Raw(Json.Serialize(Model.PopularCourses.Select(x => x.Value))),
+                    backgroundColor: 'rgba(75, 192, 192, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}
