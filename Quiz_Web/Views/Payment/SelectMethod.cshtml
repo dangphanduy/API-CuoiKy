@@ -1,0 +1,151 @@
+@model List<Quiz_Web.Models.Entities.CartItem>
+@{
+    ViewData["Title"] = "Chọn phương thức thanh toán";
+    var total = ViewBag.Total as decimal? ?? 0;
+    var cartItems = ViewBag.CartItems as List<Quiz_Web.Models.Entities.CartItem> ?? new List<Quiz_Web.Models.Entities.CartItem>();
+}
+
+<link rel="stylesheet" href="~/css/payment-method.css" asp-append-version="true" />
+
+<div class="payment-method-container">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="bi bi-credit-card me-2"></i>Chọn phương thức thanh toán
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Order Summary -->
+                        <div class="order-summary mb-4 p-3 bg-light rounded">
+                            <h5 class="mb-3">Thông tin đơn hàng</h5>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Số lượng khóa học:</span>
+                                <strong>@cartItems.Count</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tổng tiền:</span>
+                                <strong class="text-primary fs-4">@total.ToString("N0") ₫</strong>
+                            </div>
+                        </div>
+
+                        <!-- Payment Methods -->
+                        <h5 class="mb-3">Chọn phương thức</h5>
+                        <div class="payment-methods">
+                            <!-- MoMo Payment -->
+                            <div class="payment-method-item mb-3">
+                                <input type="radio" class="btn-check" name="payment-method" id="momo" value="momo" checked>
+                                <label class="btn btn-outline-primary w-100 text-start payment-method-label" for="momo">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://developers.momo.vn/v3/img/logo.png" alt="MoMo" class="payment-logo me-3" style="height: 40px;">
+                                        <div>
+                                            <h6 class="mb-1">Ví điện tử MoMo</h6>
+                                            <small class="text-muted">Thanh toán qua ứng dụng MoMo hoặc quét mã QR</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Other Payment Methods (Disabled for now) -->
+                            <div class="payment-method-item mb-3">
+                                <label class="btn btn-outline-secondary w-100 text-start payment-method-label disabled" style="opacity: 0.5;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-credit-card fs-3 me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1">Thẻ tín dụng/Ghi nợ <span class="badge bg-secondary">Sắp có</span></h6>
+                                            <small class="text-muted">Visa, Mastercard, JCB</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="payment-method-item mb-3">
+                                <label class="btn btn-outline-secondary w-100 text-start payment-method-label disabled" style="opacity: 0.5;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-bank fs-3 me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1">Chuyển khoản ngân hàng <span class="badge bg-secondary">Sắp có</span></h6>
+                                            <small class="text-muted">Chuyển khoản trực tiếp</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="button" class="btn btn-primary btn-lg" id="btnProceedPayment">
+                                <i class="bi bi-check-circle me-2"></i>Tiếp tục thanh toán
+                            </button>
+                            <a href="/checkout" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Quay lại giỏ hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('btnProceedPayment').addEventListener('click', async function() {
+            const selectedMethod = document.querySelector('input[name="payment-method"]:checked');
+            
+            if (!selectedMethod) {
+                alert('Vui lòng chọn phương thức thanh toán');
+                return;
+            }
+
+            const method = selectedMethod.value;
+            
+            if (method === 'momo') {
+                await processMoMoPayment();
+            } else {
+                alert('Phương thức thanh toán này chưa được hỗ trợ');
+            }
+        });
+
+        async function processMoMoPayment() {
+            try {
+                const button = document.getElementById('btnProceedPayment');
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+                const response = await fetch('/payment/momo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Mở trang thanh toán MoMo trong tab/window mới
+                    window.open(data.payUrl, '_blank');
+                    
+                    // Hiển thị thông báo
+                    alert('Đã mở trang thanh toán MoMo. Vui lòng hoàn tất thanh toán trong tab mới.');
+                    
+                    // Có thể redirect về trang chờ hoặc giữ nguyên
+                    // window.location.href = '/payment/waiting?orderId=' + data.orderId;
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra khi tạo thanh toán');
+                }
+                
+                button.disabled = false;
+                button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Tiếp tục thanh toán';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+                const button = document.getElementById('btnProceedPayment');
+                button.disabled = false;
+                button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Tiếp tục thanh toán';
+            }
+        }
+    </script>
+}

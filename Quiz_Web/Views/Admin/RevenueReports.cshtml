@@ -1,0 +1,150 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Báo cáo doanh thu và giao dịch</h2>
+    <div class="btn-group">
+        <button type="button" class="btn btn-success" onclick="doExportCSV()">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Xuất CSV
+        </button>
+        <button type="button" class="btn btn-primary" onclick="doExportExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalRevenue.ToString("N0") VNĐ</h4>
+                        <p class="mb-0">Doanh thu Admin (40%)</p>
+                        <small class="text-white-50">Phí nền tảng - Instructor nhận 60%</small>
+                    </div>
+                    <i class="bi bi-currency-dollar fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.MonthlyRevenue.ToString("N0") VNĐ</h4>
+                        <p class="mb-0">Doanh thu Admin tháng này (40%)</p>
+                    </div>
+                    <i class="bi bi-graph-up-arrow fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Giao dịch gần đây</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.RecentPurchases != null && ((IEnumerable<dynamic>)Model.RecentPurchases).Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Người mua</th>
+                                    <th>Khóa học</th>
+                                    <th>Số tiền</th>
+                                    <th>Ngày</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var purchase in Model.RecentPurchases)
+                                {
+                                    <tr>
+                                        <td>@purchase.FullName</td>
+                                        <td>@purchase.Title</td>
+                                        <td>@purchase.PricePaid.ToString("N0") VNĐ</td>
+                                        <td>@purchase.PurchasedAt.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Chưa có giao dịch nào!</strong>
+                        <p class="mb-0 mt-2">Có thể do:</p>
+                        <ul class="mb-0 mt-1">
+                            <li>Chưa có đơn hàng nào được thanh toán thành công</li>
+                            <li>Đơn hàng đang ở trạng thái "Pending" - chưa cập nhật thành "Paid"</li>
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Thanh toán cao nhất</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.TopPayments != null && ((IEnumerable<dynamic>)Model.TopPayments).Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Số tiền</th>
+                                    <th>Ngày thanh toán</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in Model.TopPayments)
+                                {
+                                    <tr>
+                                        <td class="fw-bold text-success">@payment.Amount.ToString("N0") VNĐ</td>
+                                        <td>@(payment.PaidAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>Chưa có thanh toán nào được ghi nhận.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="~/js/admin/export-reports.js"></script>
+    <script>
+        // ✅ FIX: Đổi tên function để tránh đệ quy vô hạn
+        function doExportCSV() {
+            exportToCSV('Báo cáo doanh thu');
+        }
+        
+        function doExportExcel() {
+            exportToExcel('Báo cáo doanh thu');
+        }
+    </script>
+}

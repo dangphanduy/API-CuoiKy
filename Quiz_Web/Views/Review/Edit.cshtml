@@ -1,0 +1,237 @@
+@model Quiz_Web.Models.ViewModels.EditReviewViewModel
+@{
+    ViewData["Title"] = "Ch?nh s?a ?ánh giá";
+    var course = ViewBag.Course as Quiz_Web.Models.Entities.Course;
+}
+
+<!-- Hero Section -->
+<section class="py-4 bg-gradient">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h1 class="display-5 fw-bold mb-3">Ch?nh s?a ?ánh giá</h1>
+                <p class="lead">C?p nh?t ?ánh giá c?a b?n v? khóa h?c</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                @if (course != null)
+                {
+                    <!-- Course Info Card -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(course.CoverUrl))
+                                {
+                                    <img src="@course.CoverUrl" alt="@course.Title" 
+                                         class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                }
+                                <div>
+                                    <h5 class="mb-1">@course.Title</h5>
+                                    <p class="text-muted mb-0">
+                                        <i class="fa-solid fa-user me-1"></i>@course.Owner?.FullName
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Review Form Card -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning">
+                        <h4 class="mb-0">
+                            <i class="fa-solid fa-star me-2"></i>Ch?nh s?a ?ánh giá c?a b?n
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form asp-action="Edit" asp-controller="Review" asp-route-id="@Model.ReviewId" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="ReviewId" />
+                            
+                            <!-- Rating -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    ?ánh giá <span class="text-danger">*</span>
+                                </label>
+                                <div class="rating-input d-flex align-items-center gap-2">
+                                    <div class="star-rating" id="starRating">
+                                        <i class="fa-regular fa-star star" data-rating="1"></i>
+                                        <i class="fa-regular fa-star star" data-rating="2"></i>
+                                        <i class="fa-regular fa-star star" data-rating="3"></i>
+                                        <i class="fa-regular fa-star star" data-rating="4"></i>
+                                        <i class="fa-regular fa-star star" data-rating="5"></i>
+                                    </div>
+                                    <span id="ratingText" class="text-muted ms-2"></span>
+                                </div>
+                                <input type="hidden" asp-for="Rating" id="ratingInput" />
+                                <span asp-validation-for="Rating" class="text-danger"></span>
+                            </div>
+
+                            <!-- Comment -->
+                            <div class="mb-4">
+                                <label asp-for="Comment" class="form-label fw-bold">
+                                    Nh?n xét
+                                </label>
+                                <textarea asp-for="Comment" class="form-control" rows="5"
+                                          placeholder="Chia s? tr?i nghi?m c?a b?n v? khóa h?c này..."
+                                          maxlength="1000"></textarea>
+                                <span asp-validation-for="Comment" class="text-danger"></span>
+                                <div class="form-text">
+                                    <span id="charCount">0</span>/1000 ký t?
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-3 justify-content-end">
+                                @if (course != null)
+                                {
+                                    <a asp-action="Detail" asp-controller="Course" asp-route-slug="@course.Slug" 
+                                       class="btn btn-outline-secondary btn-lg">
+                                        <i class="fa-solid fa-times me-2"></i>H?y
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Index" asp-controller="Course" 
+                                       class="btn btn-outline-secondary btn-lg">
+                                        <i class="fa-solid fa-times me-2"></i>H?y
+                                    </a>
+                                }
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="fa-solid fa-check me-2"></i>C?p nh?t ?ánh giá
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .star-rating {
+        display: inline-flex;
+        gap: 4px;
+        font-size: 2rem;
+    }
+
+    .star {
+        cursor: pointer;
+        color: #ddd;
+        transition: all 0.2s ease;
+    }
+
+    .star:hover,
+    .star.active {
+        color: #ffc107;
+    }
+
+    .star.active {
+        content: '\f005';
+    }
+
+    .fa-solid.star {
+        color: #ffc107;
+    }
+</style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Star rating functionality
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('ratingInput');
+        const ratingText = document.getElementById('ratingText');
+        const currentRating = parseFloat('@Model.Rating');
+        
+        const ratingLabels = {
+            1: 'R?t t?',
+            2: 'T?',
+            3: 'Trung bình',
+            4: 'T?t',
+            5: 'Xu?t s?c'
+        };
+
+        // Initialize with current rating
+        setRating(currentRating);
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                setRating(rating);
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const rating = this.getAttribute('data-rating');
+                highlightStars(rating);
+            });
+        });
+
+        document.getElementById('starRating').addEventListener('mouseleave', function() {
+            const currentRating = ratingInput.value || 0;
+            highlightStars(currentRating);
+        });
+
+        function setRating(rating) {
+            ratingInput.value = rating;
+            highlightStars(rating);
+            ratingText.textContent = rating > 0 ? ratingLabels[rating] : '';
+        }
+
+        function highlightStars(rating) {
+            stars.forEach(star => {
+                const starRating = star.getAttribute('data-rating');
+                if (starRating <= rating) {
+                    star.classList.remove('fa-regular');
+                    star.classList.add('fa-solid', 'active');
+                } else {
+                    star.classList.remove('fa-solid', 'active');
+                    star.classList.add('fa-regular');
+                }
+            });
+        }
+
+        // Character counter
+        const commentTextarea = document.querySelector('textarea[name="Comment"]');
+        const charCount = document.getElementById('charCount');
+
+        function updateCharCount() {
+            const length = commentTextarea.value.length;
+            charCount.textContent = length;
+            if (length > 1000) {
+                charCount.classList.add('text-danger');
+            } else {
+                charCount.classList.remove('text-danger');
+            }
+        }
+
+        if (commentTextarea) {
+            updateCharCount(); // Initial count
+            commentTextarea.addEventListener('input', updateCharCount);
+        }
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const rating = ratingInput.value;
+            if (!rating || rating < 1 || rating > 5) {
+                e.preventDefault();
+                alert('Vui lòng ch?n ?ánh giá t? 1 ??n 5 sao!');
+                return false;
+            }
+        });
+    </script>
+}

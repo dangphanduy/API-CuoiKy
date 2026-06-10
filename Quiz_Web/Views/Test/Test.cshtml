@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Tests";
+}
+
+<!-- Import Google Fonts and Font Awesome -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Custom CSS -->
+<link rel="stylesheet" href="~/asset/css/Test.css" />
+
+<!-- Full Width Header -->
+<div class="library-header">
+    <div class="library-header-content">
+        <div class="first-top">
+            <h1 class="library-title">Tests</h1>
+        </div>
+        <div class="second-top">
+            <nav class="submenu-nav">
+                <ul class="nav nav-tabs" id="testTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="upcoming-tests-tab" data-bs-toggle="tab"
+                                data-bs-target="#upcoming-tests" type="button" role="tab"
+                                aria-controls="upcoming-tests" aria-selected="true"
+                                data-view="UpcomingTests">
+                            <i class="fas fa-clock me-2"></i>Upcoming Tests
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="due-tests-tab" data-bs-toggle="tab"
+                                data-bs-target="#due-tests" type="button" role="tab"
+                                aria-controls="due-tests" aria-selected="false"
+                                data-view="DueTests">
+                            <i class="fas fa-exclamation-circle me-2"></i>Due Tests
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="completed-tests-tab" data-bs-toggle="tab"
+                                data-bs-target="#completed-tests" type="button" role="tab"
+                                aria-controls="completed-tests" aria-selected="false"
+                                data-view="CompletedTests">
+                            <i class="fas fa-check-circle me-2"></i>Completed Tests
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Content Section with Container -->
+<section class="library-container">
+    <div class="library-content">
+        <div class="tab-content" id="testTabContent">
+            <div class="tab-pane fade show active" id="upcoming-tests" role="tabpanel"
+                 aria-labelledby="upcoming-tests-tab">
+                <div class="content-loader">
+                    <div class="spinner-border test-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="due-tests" role="tabpanel"
+                 aria-labelledby="due-tests-tab">
+                <div class="content-loader">
+                    <div class="spinner-border test-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="completed-tests" role="tabpanel"
+                 aria-labelledby="completed-tests-tab">
+                <div class="content-loader">
+                    <div class="spinner-border test-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript -->
+<script src="~/js/Test.js"></script>

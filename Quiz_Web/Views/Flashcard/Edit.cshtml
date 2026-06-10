@@ -1,0 +1,434 @@
+@model Quiz_Web.Models.ViewModels.EditFlashcardSetViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa bộ Flashcard";
+}
+
+<!-- Hero Section -->
+<section class="py-4 bg-gradient">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h1 class="display-5 fw-bold mb-3">Chỉnh sửa bộ Flashcard</h1>
+                <p class="lead">Cập nhật thông tin bộ thẻ học tập của bạn</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Alert Messages -->
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <!-- Flashcard Form Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fa-solid fa-layer-group me-2"></i>Thông tin bộ Flashcard
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form asp-action="Edit" asp-controller="Flashcard" asp-route-id="@Model.SetId" 
+                              method="post" id="flashcardForm" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="SetId" />
+                            <input type="hidden" asp-for="CoverUrl" />
+                            <input type="hidden" id="FlashcardsJson" name="FlashcardsJson" />
+                            
+                            <!-- Title -->
+                            <div class="mb-4">
+                                <label asp-for="Title" class="form-label fw-bold">
+                                    Tiêu đề <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Title" class="form-control form-control-lg" 
+                                       placeholder="Ví dụ: Từ vựng tiếng Anh cơ bản" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-4">
+                                <label asp-for="Description" class="form-label fw-bold">
+                                    Mô tả
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="3"
+                                          placeholder="Mô tả ngắn gọn về nội dung bộ flashcard"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <!-- Visibility -->
+                            <div class="mb-4">
+                                <label asp-for="Visibility" class="form-label fw-bold">
+                                    Chế độ hiển thị <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Visibility" class="form-select">
+                                    <option value="Public">Công khai - Ai cũng có thể xem</option>
+                                    <option value="Private">Riêng tư - Chỉ mình tôi</option>
+                                </select>
+                                <span asp-validation-for="Visibility" class="text-danger"></span>
+                            </div>
+
+                            <!-- Current Cover Image -->
+                            @if (!string.IsNullOrEmpty(Model.CoverUrl))
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Ảnh bìa hiện tại</label>
+                                    <div>
+                                        <img src="@Model.CoverUrl" alt="Current cover" 
+                                             class="img-thumbnail" style="max-width: 300px;" />
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Cover Image -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Ảnh bìa mới (tùy chọn)</label>
+                                <input type="file" name="coverFile" accept="image/*" class="form-control" id="coverFile" />
+                                <small class="text-muted">Để trống nếu không muốn thay đổi. Định dạng: jpg, jpeg, png, gif, webp</small>
+                                
+                                <!-- Image Preview -->
+                                <div id="imagePreview" class="mt-3" style="display: none;">
+                                    <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 300px;" />
+                                </div>
+                            </div>
+
+                            <!-- Tags and Language Row -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label asp-for="TagsText" class="form-label fw-bold">
+                                        Thẻ tag
+                                    </label>
+                                    <input asp-for="TagsText" class="form-control" 
+                                           placeholder="Ví dụ: tiếng anh, từ vựng, cơ bản" />
+                                    <span asp-validation-for="TagsText" class="text-danger"></span>
+                                    <small class="text-muted">Ngăn cách bằng dấu phẩy</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Language" class="form-label fw-bold">
+                                        Ngôn ngữ
+                                    </label>
+                                    <input asp-for="Language" class="form-control" 
+                                           placeholder="Ví dụ: Tiếng Việt, English" />
+                                    <span asp-validation-for="Language" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-3 justify-content-end mt-4">
+                                <a asp-action="Detail" asp-route-id="@Model.SetId" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fa-solid fa-times me-2"></i>Hủy
+                                </a>
+                                <button type="submit" class="btn btn-info text-white btn-lg">
+                                    <i class="fa-solid fa-check me-2"></i>Cập nhật
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Flashcards List Card -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fa-solid fa-layer-group me-2"></i>Danh sách thẻ học
+                        </h4>
+                        <button type="button" class="btn btn-light btn-sm" onclick="addNewFlashcard()">
+                            <i class="fa-solid fa-plus me-1"></i>Thêm thẻ mới
+                        </button>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="flashcardsList">
+                            <!-- Flashcards will be loaded here -->
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Đang tải...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/flashcard-form.css" asp-append-version="true" />
+    <style>
+        .flashcard-item {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .flashcard-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #0d6efd;
+        }
+        
+        .flashcard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .flashcard-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        
+        .drag-handle {
+            cursor: move;
+            color: #6c757d;
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        
+        .no-flashcards {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .no-flashcards i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        let flashcards = [];
+        let flashcardCounter = 0;
+
+        // Load existing flashcards
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadExistingFlashcards();
+            initializeSortable();
+        });
+
+        // Load flashcards from API
+        async function loadExistingFlashcards() {
+            const setId = @Model.SetId;
+            
+            try {
+                const response = await fetch(`/api/flashcards/${setId}`);
+                const data = await response.json();
+                
+                if (data.success && data.flashcards && data.flashcards.length > 0) {
+                    flashcards = data.flashcards;
+                    flashcardCounter = flashcards.length;
+                    renderFlashcards();
+                } else {
+                    showNoFlashcardsMessage();
+                }
+            } catch (error) {
+                console.error('Error loading flashcards:', error);
+                showNoFlashcardsMessage();
+            }
+        }
+
+        // Render all flashcards
+        function renderFlashcards() {
+            const container = document.getElementById('flashcardsList');
+            
+            if (flashcards.length === 0) {
+                showNoFlashcardsMessage();
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            flashcards.forEach((card, index) => {
+                const cardHtml = createFlashcardHtml(card, index);
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Create HTML for a flashcard
+        function createFlashcardHtml(card, index) {
+            return `
+                <div class="flashcard-item" data-index="${index}">
+                    <div class="flashcard-header">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-grip-vertical drag-handle"></i>
+                            <span class="flashcard-number">Thẻ ${index + 1}</span>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeFlashcard(${index})">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Mặt trước <span class="text-danger">*</span></label>
+                            <textarea class="form-control" rows="3" 
+                                      placeholder="Nhập nội dung mặt trước" 
+                                      onchange="updateFlashcard(${index}, 'frontText', this.value)"
+                                      required>${card.frontText || ''}</textarea>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Mặt sau <span class="text-danger">*</span></label>
+                            <textarea class="form-control" rows="3" 
+                                      placeholder="Nhập nội dung mặt sau" 
+                                      onchange="updateFlashcard(${index}, 'backText', this.value)"
+                                      required>${card.backText || ''}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">Gợi ý (tùy chọn)</label>
+                        <input type="text" class="form-control" 
+                               placeholder="Nhập gợi ý cho thẻ này" 
+                               value="${card.hint || ''}"
+                               onchange="updateFlashcard(${index}, 'hint', this.value)">
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show message when no flashcards
+        function showNoFlashcardsMessage() {
+            const container = document.getElementById('flashcardsList');
+            container.innerHTML = `
+                <div class="no-flashcards">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <h5>Chưa có thẻ học nào</h5>
+                    <p class="text-muted">Nhấn nút "Thêm thẻ mới" để bắt đầu tạo flashcard</p>
+                </div>
+            `;
+        }
+
+        // Add new flashcard
+        function addNewFlashcard() {
+            const newCard = {
+                frontText: '',
+                backText: '',
+                hint: '',
+                orderIndex: flashcards.length
+            };
+            
+            flashcards.push(newCard);
+            renderFlashcards();
+            
+            // Scroll to the new card
+            setTimeout(() => {
+                const newCardElement = document.querySelector(`.flashcard-item[data-index="${flashcards.length - 1}"]`);
+                if (newCardElement) {
+                    newCardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
+
+        // Update flashcard data
+        function updateFlashcard(index, field, value) {
+            if (flashcards[index]) {
+                flashcards[index][field] = value;
+            }
+        }
+
+        // Remove flashcard
+        function removeFlashcard(index) {
+            if (confirm('Bạn có chắc muốn xóa thẻ này?')) {
+                flashcards.splice(index, 1);
+                // Update orderIndex
+                flashcards.forEach((card, idx) => {
+                    card.orderIndex = idx;
+                });
+                renderFlashcards();
+            }
+        }
+
+        // Initialize Sortable for drag and drop
+        function initializeSortable() {
+            const container = document.getElementById('flashcardsList');
+            
+            new Sortable(container, {
+                animation: 150,
+                handle: '.drag-handle',
+                onEnd: function() {
+                    // Update flashcards array based on new order
+                    const items = container.querySelectorAll('.flashcard-item');
+                    const newFlashcards = [];
+                    
+                    items.forEach((item, index) => {
+                        const oldIndex = parseInt(item.dataset.index);
+                        const card = flashcards[oldIndex];
+                        card.orderIndex = index;
+                        newFlashcards.push(card);
+                    });
+                    
+                    flashcards = newFlashcards;
+                    renderFlashcards();
+                }
+            });
+        }
+
+        // Form submission
+        document.getElementById('flashcardForm')?.addEventListener('submit', function(e) {
+            // Validate
+            const title = document.querySelector('input[name="Title"]')?.value.trim();
+            if (!title) {
+                e.preventDefault();
+                alert('Vui lòng nhập tiêu đề bộ flashcard!');
+                return;
+            }
+
+            // Check if all flashcards have required fields
+            let hasError = false;
+            flashcards.forEach((card, index) => {
+                if (!card.frontText || !card.frontText.trim()) {
+                    hasError = true;
+                    alert(`Thẻ ${index + 1}: Vui lòng nhập nội dung mặt trước!`);
+                }
+                if (!card.backText || !card.backText.trim()) {
+                    hasError = true;
+                    alert(`Thẻ ${index + 1}: Vui lòng nhập nội dung mặt sau!`);
+                }
+            });
+
+            if (hasError) {
+                e.preventDefault();
+                return;
+            }
+
+            // Set flashcards JSON data
+            document.getElementById('FlashcardsJson').value = JSON.stringify(flashcards);
+        });
+
+        // Image preview
+        document.getElementById('coverFile')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    document.getElementById('previewImg').src = ev.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        });
+    </script>
+}

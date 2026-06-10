@@ -1,0 +1,59 @@
+﻿@{
+	Layout = "_LayoutAccount";
+	ViewData["Title"] = "Register";
+}
+<section class="container" id="register">
+	<div class="auth-wrapper px-5 mt-5">
+		<div class="auth-image" style="background-image: url('/asset/image/Login.svg');">
+			@* <div class="text-white p-5">
+            <h3>Lorem Ipsum is simply</h3>
+            <p>Lorem Ipsum is simply dummy text.</p>
+        </div> *@
+		</div>
+
+		<div class="auth-form">
+			<div class="auth-card">
+				<div class="text-center mb-4">
+					<h4>Welcome</h4>
+				</div>
+
+				<div class="auth-tabs mx-auto">
+					<a href="@Url.Action("Login", "Account")">Đăng nhập</a>
+					<a href="@Url.Action("Register", "Account")" class="active">Đăng ký</a>
+				</div>
+
+
+
+				<form asp-action="Register" id="register_form" method="post">
+					<div class="mb-3">
+						<label>Họ tên</label>
+						<input type="fullname" name="full name" id="fullname" class="form-control auth-input" placeholder="Nhập họ tên" required />
+					</div>
+					<div class="mb-3">
+						<label>Email</label>
+						<input type="email" name="email" id="email" class="form-control auth-input" placeholder="Nhập email" required />
+					</div>
+					<div class="mb-3">
+						<label>Tài khoản</label>
+						<input type="text" name="username" id="username" class="form-control auth-input" placeholder="Nhập tài khoản" required />
+					</div>
+					<div class="mb-3">
+						<label>Mật khẩu</label>
+						<input type="password" name="password" id="password" class="form-control auth-input" placeholder="Nhập mật khẩu" required />
+					</div>
+					<div class="mb-3">
+						<label>Xác nhận nhận khẩu</label>
+						<input type="password" name="password" id="confirmPassword" class="form-control auth-input" placeholder="Nhập lại mật khẩu" required />
+					</div>
+
+					<button type="submit" class="btn btn-primary btn-auth">Đăng ký</button>
+
+					@if (ViewBag.Success != null)
+					{
+						<div class="alert alert-success mt-3">@ViewBag.Success</div>
+					}
+				</form>
+			</div>
+		</div>
+	</div>
+</section>

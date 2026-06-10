@@ -1,0 +1,266 @@
+/* Account Settings Page Styles */
+
+.account-settings-container {
+    min-height: 100vh;
+    background-color: #fff;
+    padding-top: 60px; /* Account for fixed header */
+}
+
+.account-settings-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1c1d1f;
+    margin-bottom: 32px;
+}
+
+/* Tabs Navigation */
+.tabs-navigation {
+    display: flex;
+    gap: 32px;
+    border-bottom: 1px solid #d1d7dc;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.tab-link {
+    padding: 12px 0;
+    font-size: 16px;
+    color: #6a6f73;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.tab-link:hover {
+    color: #1c1d1f;
+}
+
+.tab-link.active {
+    color: #1c1d1f;
+    font-weight: 700;
+}
+
+.tab-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #5624d0;
+}
+
+/* Settings Section */
+.settings-section {
+    max-width: 600px;
+}
+
+.field-group {
+    margin-bottom: 32px;
+}
+
+.field-label {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1c1d1f;
+    margin-bottom: 8px;
+}
+
+.field-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.field-input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 16px;
+    color: #1c1d1f;
+    border: 1px solid #d1d7dc;
+    border-radius: 4px;
+    background-color: #f7f9fa;
+    transition: all 0.2s;
+}
+
+.field-input:disabled {
+    background-color: #f7f9fa;
+    cursor: not-allowed;
+}
+
+.field-input:not(:disabled) {
+    background-color: #fff;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: #5624d0;
+    box-shadow: 0 0 0 2px rgba(86, 36, 208, 0.1);
+}
+
+.edit-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f7f9fa;
+    border: 1px solid #d1d7dc;
+    border-radius: 4px;
+    color: #5624d0;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    pointer-events: auto; /* Ensure button is clickable */
+    z-index: 1; /* Bring to front */
+}
+
+.edit-btn:hover {
+    background-color: #e8eaed;
+    border-color: #5624d0;
+    transform: scale(1.05);
+}
+
+.edit-btn:active {
+    transform: scale(0.95);
+}
+
+.edit-btn i {
+    font-size: 16px;
+    pointer-events: none; /* Don't block clicks on icon */
+}
+
+/* Edit Forms */
+.edit-form {
+    display: none;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-save,
+.btn-cancel {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-save {
+    background-color: #5624d0;
+    color: #fff;
+}
+
+.btn-save:hover {
+    background-color: #401b9c;
+}
+
+.btn-cancel {
+    background-color: #fff;
+    color: #1c1d1f;
+    border: 1px solid #d1d7dc;
+}
+
+.btn-cancel:hover {
+    background-color: #f7f9fa;
+}
+
+/* Security Box */
+.security-box {
+    margin-top: 48px;
+    padding: 24px;
+    border: 1px solid #d1d7dc;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.security-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1c1d1f;
+    margin-bottom: 12px;
+}
+
+.security-description {
+    font-size: 14px;
+    color: #6a6f73;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.btn-security {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    background-color: #5624d0;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-security:hover {
+    background-color: #401b9c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .account-settings-content {
+        padding: 24px 16px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+
+    .tabs-navigation {
+        gap: 20px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-link {
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .field-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .edit-btn {
+        width: 100%;
+    }
+}
+
+/* Utility Classes */
+.mt-2 {
+    margin-top: 12px;
+}

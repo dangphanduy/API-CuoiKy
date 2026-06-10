@@ -1,0 +1,482 @@
+﻿/* Modern Lesson Creator Styles */
+:root {
+    --primary-color: #8854c0;
+    --primary-hover: #7340a8;
+    --success-color: #00c985;
+    --danger-color: #ff4757;
+    --warning-color: #ffa502;
+    --info-color: #3742fa;
+    --bg-light: #f8f9fa;
+    --border-color: #e1e4e8;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+body {
+    background-color: #f5f6f8;
+}
+
+.lesson-creator-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Header Section */
+.lesson-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #6c4298 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.lesson-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.lesson-header p {
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Card Styles */
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.info-card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.info-card .card-title i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+/* Form Controls */
+.form-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-control, .form-select {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(136, 84, 192, 0.1);
+}
+
+/* Slide Container */
+#slide-container {
+    min-height: 200px;
+}
+
+#slide-container:empty::before {
+    content: "Chưa có slide nào. Hãy thêm slide đầu tiên! 🎯";
+    display: block;
+    text-align: center;
+    padding: 3rem;
+    color: #a0aec0;
+    font-size: 1.125rem;
+    background: white;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+}
+
+/* Slide Item */
+.slide-item {
+    background: white;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.slide-item:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.slide-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-color);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.slide-item:hover::before {
+    opacity: 1;
+}
+
+/* Slide Header */
+.slide-item .card-header {
+    background: linear-gradient(135deg, #f7f8fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.slide-number {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.slide-number::before {
+    content: '📝';
+    margin-right: 0.5rem;
+}
+
+.slide-item[data-type="Flashcard"] .slide-number::before {
+    content: '🎴';
+}
+
+.slide-item[data-type="MCQ_Single"] .slide-number::before,
+.slide-item[data-type="MCQ_Multi"] .slide-number::before {
+    content: '✅';
+}
+
+.slide-item[data-type="TrueFalse"] .slide-number::before {
+    content: '⚡';
+}
+
+.slide-item[data-type="ShortText"] .slide-number::before {
+    content: '✏️';
+}
+
+.slide-item .card-body {
+    padding: 1.5rem;
+}
+
+/* Buttons */
+.btn-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 2px solid transparent;
+}
+
+.btn i {
+    font-size: 1.125rem;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: white;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-success {
+    color: var(--success-color);
+    border-color: var(--success-color);
+    background: white;
+}
+
+.btn-outline-success:hover {
+    background: var(--success-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-info {
+    color: var(--info-color);
+    border-color: var(--info-color);
+    background: white;
+}
+
+.btn-outline-info:hover {
+    background: var(--info-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-warning {
+    color: var(--warning-color);
+    border-color: var(--warning-color);
+    background: white;
+}
+
+.btn-outline-warning:hover {
+    background: var(--warning-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger, .remove-slide {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover, .remove-slide:hover {
+    background-color: #e63946;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-color) 0%, #00a86b 100%);
+    border: none;
+    color: white;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Options Container */
+.options-container {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.option-item {
+    background: white;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.option-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.option-item .input-group-text {
+    background: #f8f9fa;
+    border: none;
+    border-right: 1px solid var(--border-color);
+}
+
+.option-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.option-item .form-control {
+    border: none;
+}
+
+.remove-option-btn {
+    border: none;
+    border-left: 1px solid var(--border-color);
+}
+
+/* Add Option Button */
+.add-option-btn {
+    background: white;
+    border: 2px dashed var(--border-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.add-option-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-style: solid;
+}
+
+/* Action Buttons */
+.action-buttons {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 1.5rem;
+    border-top: 2px solid var(--border-color);
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+    border-radius: 12px 12px 0 0;
+    margin-top: 2rem;
+    z-index: 100;
+}
+
+#save-lesson-button {
+    min-width: 200px;
+    font-size: 1.125rem;
+    padding: 1rem 2rem;
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .lesson-creator-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .lesson-header {
+        padding: 1.5rem;
+    }
+
+    .lesson-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-item {
+    animation: slideIn 0.3s ease;
+}
+
+/* Drag Handle (for future drag & drop feature) */
+.drag-handle {
+    cursor: move;
+    color: #a0aec0;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.drag-handle:hover {
+    color: var(--primary-color);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px dashed var(--border-color);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state-text {
+    color: #a0aec0;
+    font-size: 1.125rem;
+}
+
+/* Tooltips */
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #718096;
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+    cursor: help;
+}
+
+/* Success Message */
+.success-message {
+    background: linear-gradient(135deg, var(--success-color) 0%, #00a86b 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideIn 0.3s ease;
+}
+
+.success-message i {
+    font-size: 1.5rem;
+}

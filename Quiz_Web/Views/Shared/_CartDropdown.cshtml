@@ -1,0 +1,73 @@
+﻿@inject Quiz_Web.Services.IServices.ICartService CartService
+
+@{
+    int cartCount = 0;
+    decimal cartTotal = 0;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var userId))
+        {
+            cartCount = await CartService.GetCartItemCountAsync(userId);
+            cartTotal = await CartService.GetCartTotalAsync(userId);
+        }
+    }
+}
+
+<div class="nav-item dropdown cart-dropdown ms-2">
+    <a class="nav-link px-2 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="cartDropdownToggle" title="Giỏ hàng">
+        <i class="bi bi-cart3"></i>
+        @if (cartCount > 0)
+        {
+            <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-purple">
+                @cartCount
+            </span>
+        }
+    </a>
+    <div class="dropdown-menu dropdown-menu-end cart-dropdown-menu" id="cartDropdownMenu">
+        <div class="cart-header px-3 py-2 border-bottom">
+            <h6 class="mb-0 fw-semibold">Giỏ hàng của bạn</h6>
+        </div>
+        
+        <div class="cart-content">
+            <!-- Always render cartItemsList so client-side JS can update it dynamically -->
+            <div id="cartItemsList" class="cart-items-list">
+                @if (cartCount > 0)
+                {
+                    <!-- initial placeholder while JS loads real items -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- server-side empty state (will be replaced by JS when items exist) -->
+                    <div class="cart-empty text-center py-5 px-3">
+                        <i class="bi bi-cart-x text-muted" style="font-size: 48px;"></i>
+                        <p class="text-muted mt-3 mb-2">Giỏ hàng của bạn đang trống</p>
+                        <a href="/courses" class="text-decoration-none text-primary">
+                            Tiếp tục mua sắm <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                }
+            </div>
+            
+            <!-- Footer is always present but hidden when there are no items -->
+            <div class="cart-footer border-top" id="cartFooter" style="@(cartCount > 0 ? "" : "display:none;")">
+                <div class="cart-total px-3 py-2 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">Tổng:</span>
+                        <span class="fw-bold text-primary" id="cartTotal">@String.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:N0}", cartTotal) vnđ</span>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <a href="@Url.Action("Index", "Checkout")" class="btn btn-purple w-100 mb-2">
+                        Chuyển đến giỏ hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

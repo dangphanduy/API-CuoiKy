@@ -1,0 +1,294 @@
+/* Top Rated Course Section - Featured Single Course */
+.top-rated-course-section {
+    background-color: #ffffff;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding-left: calc(50vw - 50%);
+    padding-right: calc(50vw - 50%);
+}
+
+.top-rated-course-section .container-fluid {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.top-rated-course-section h2 {
+    font-size: 32px;
+    color: #1c1d1f;
+}
+
+.featured-course-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: white;
+    border: 1px solid #d1d7dc;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.featured-course-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.featured-course-image {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.featured-course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.featured-course-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 120px;
+}
+
+.featured-course-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: #a435f0;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.featured-badge-bestseller {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #eceb98;
+    color: #3d3c0a;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.featured-course-content {
+    padding: 40px;
+}
+
+.featured-course-header {
+    margin-bottom: 24px;
+}
+
+.featured-course-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1c1d1f;
+    margin-bottom: 12px;
+    line-height: 1.3;
+}
+
+.featured-course-summary {
+    font-size: 16px;
+    color: #6a6f73;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.featured-course-meta {
+    margin-bottom: 32px;
+}
+
+.featured-course-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.rating-value-large {
+    font-size: 28px;
+    font-weight: 700;
+    color: #b4690e;
+}
+
+.stars-large {
+    display: flex;
+    gap: 4px;
+    color: #b4690e;
+}
+
+.stars-large i {
+    font-size: 20px;
+}
+
+.review-count-large {
+    font-size: 16px;
+    color: #6a6f73;
+    margin-left: 4px;
+}
+
+.featured-course-instructor {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #1c1d1f;
+    margin-bottom: 16px;
+}
+
+.featured-course-instructor i {
+    font-size: 20px;
+    color: #6a6f73;
+}
+
+.featured-course-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #6a6f73;
+}
+
+.stat-item i {
+    font-size: 16px;
+}
+
+.featured-course-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.featured-course-price .price-large {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1c1d1f;
+}
+
+.featured-course-price .free {
+    color: #1c1d1f;
+}
+
+.btn-enroll-featured {
+    background: #a435f0;
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-enroll-featured:hover {
+    background: #8710d8;
+    transform: scale(1.05);
+}
+
+.btn-enroll-featured i {
+    font-size: 18px;
+}
+
+/* Responsive for Featured Course */
+@media (max-width: 992px) {
+    .featured-course-image {
+        height: 300px;
+    }
+    
+    .featured-course-content {
+        padding: 30px;
+    }
+    
+    .featured-course-title {
+        font-size: 28px;
+    }
+    
+    .rating-value-large {
+        font-size: 24px;
+    }
+    
+    .featured-course-price .price-large {
+        font-size: 28px;
+    }
+    
+    .top-rated-course-section h2 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .featured-course-image {
+        height: 250px;
+    }
+    
+    .featured-course-content {
+        padding: 24px;
+    }
+    
+    .featured-course-title {
+        font-size: 24px;
+    }
+    
+    .featured-course-summary {
+        font-size: 14px;
+    }
+    
+    .rating-value-large {
+        font-size: 20px;
+    }
+    
+    .stars-large i {
+        font-size: 16px;
+    }
+    
+    .review-count-large {
+        font-size: 14px;
+    }
+    
+    .featured-course-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .featured-course-price .price-large {
+        font-size: 24px;
+    }
+    
+    .btn-enroll-featured {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .top-rated-course-section h2 {
+        font-size: 24px;
+    }
+}

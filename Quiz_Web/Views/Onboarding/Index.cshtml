@@ -1,0 +1,272 @@
+﻿@model Quiz_Web.Models.ViewModels.OnboardingViewModel
+@{
+    ViewData["Title"] = "Chào mừng bạn đến với nền tảng học tập";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/onboarding.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <!-- Progress Steps -->
+            <div class="onboarding-progress">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Thông tin cơ bản</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Sở thích</div>
+                </div>
+            </div>
+
+            <form id="onboardingForm" asp-action="Submit" asp-controller="Onboarding" method="post">
+                @Html.AntiForgeryToken()
+                
+                <!-- Step 1: User Profile Information -->
+                <div class="onboarding-step" id="step1">
+                    <div class="onboarding-header">
+                        <h1>Hoàn tất hồ sơ của bạn 📝</h1>
+                        <p class="lead">Hãy cho chúng tôi biết một chút về bạn để cá nhân hóa trải nghiệm học tập</p>
+                    </div>
+
+                    <div class="profile-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DoB" class="form-label">Ngày sinh</label>
+                                <input asp-for="DoB" type="date" class="form-control" />
+                                <span asp-validation-for="DoB" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Gender" class="form-label">Giới tính</label>
+                                <select asp-for="Gender" class="form-select">
+                                    <option value="">-- Chọn giới tính --</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                                <span asp-validation-for="Gender" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SchoolName" class="form-label">Tên trường</label>
+                                <input asp-for="SchoolName" type="text" class="form-control" placeholder="Ví dụ: Đại học Bách Khoa Hà Nội" />
+                                <span asp-validation-for="SchoolName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GradeLevel" class="form-label">Cấp/Trình độ học</label>
+                                <input asp-for="GradeLevel" type="text" class="form-control" placeholder="Ví dụ: Sinh viên năm 3, Lớp 12..." />
+                                <span asp-validation-for="GradeLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label">Giới thiệu ngắn về bạn</label>
+                            <textarea asp-for="Bio" class="form-control" rows="4" 
+                                      placeholder="Kể cho chúng tôi một chút về bản thân, mục tiêu học tập hoặc sở thích của bạn..."></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                            <small class="text-muted">Tối đa 500 ký tự</small>
+                        </div>
+                    </div>
+
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-link" id="skipStep1">Bỏ qua</button>
+                        <button type="button" class="btn btn-primary btn-lg" id="nextToStep2">
+                            Tiếp theo
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Interests (Categories) -->
+                <div class="onboarding-step" id="step2" style="display: none;">
+                    <div class="onboarding-header">
+                        <h1>Bạn muốn học về chủ đề nào? 🎯</h1>
+                        <p class="lead">Chọn các chủ đề bạn quan tâm để chúng tôi đề xuất khóa học phù hợp nhất</p>
+                    </div>
+
+                    <div class="categories-grid">
+                        @foreach (var category in Model.Categories)
+                        {
+                            <div class="category-item">
+                                <input type="checkbox" 
+                                       name="SelectedCategoryIds" 
+                                       value="@category.CategoryId" 
+                                       id="category_@category.CategoryId" 
+                                       class="category-checkbox" />
+                                <label for="category_@category.CategoryId" class="category-label">
+                                    @if (!string.IsNullOrEmpty(category.IconUrl))
+                                    {
+                                        <img src="@category.IconUrl" alt="@category.Name" class="category-icon" />
+                                    }
+                                    else
+                                    {
+                                        <div class="category-icon-placeholder">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    }
+                                    <span class="category-name">@category.Name</span>
+                                    @if (!string.IsNullOrEmpty(category.Description))
+                                    {
+                                        <span class="category-description">@category.Description</span>
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-outline-secondary" id="backToStep1">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Quay lại
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            Hoàn tất
+                            <i class="fas fa-check ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let currentStep = 1;
+
+            // Navigate to Step 2
+            $('#nextToStep2').on('click', function() {
+                // Optional: Validate Step 1 fields
+                currentStep = 2;
+                showStep(2);
+            });
+
+            // Navigate back to Step 1
+            $('#backToStep1').on('click', function() {
+                currentStep = 1;
+                showStep(1);
+            });
+
+            // Skip Step 1 (go directly to interests)
+            $('#skipStep1').on('click', function() {
+                currentStep = 2;
+                showStep(2);
+            });
+
+            function showStep(step) {
+                // Hide all steps
+                $('.onboarding-step').hide();
+                $('.progress-step').removeClass('active');
+                
+                // Show current step
+                $('#step' + step).fadeIn();
+                $(`.progress-step[data-step="${step}"]`).addClass('active');
+                
+                // Update progress line
+                if (step === 2) {
+                    $('.progress-line').addClass('completed');
+                } else {
+                    $('.progress-line').removeClass('completed');
+                }
+            }
+
+            // Handle form submission
+            $('#onboardingForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const selectedCategories = $('input[name="SelectedCategoryIds"]:checked');
+                
+                if (selectedCategories.length === 0) {
+                    showError('Vui lòng chọn ít nhất một chủ đề quan tâm');
+                    return;
+                }
+
+                const formData = $(this).serialize();
+                
+                // Show loading state
+                $('#submitBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...');
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message
+                            showSuccess('Hoàn tất! Đang chuyển hướng...');
+                            setTimeout(function() {
+                                window.location.href = response.redirectUrl;
+                            }, 1000);
+                        } else {
+                            showError(response.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+                            $('#submitBtn').prop('disabled', false).html('Hoàn tất <i class="fas fa-check ms-2"></i>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        console.error('Response:', xhr.responseText);
+                        
+                        let errorMessage = 'Đã xảy ra lỗi kết nối. Vui lòng thử lại.';
+                        
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 500) {
+                            errorMessage = 'Lỗi server. Vui lòng kiểm tra lại thông tin.';
+                        } else if (xhr.status === 400) {
+                            errorMessage = 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.';
+                        }
+                        
+                        showError(errorMessage);
+                        $('#submitBtn').prop('disabled', false).html('Hoàn tất <i class="fas fa-check ms-2"></i>');
+                    }
+                });
+            });
+
+            function showError(message) {
+                $('#errorMessage').removeClass('alert-success').addClass('alert-danger')
+                    .text(message).fadeIn();
+                setTimeout(function() {
+                    $('#errorMessage').fadeOut();
+                }, 5000);
+            }
+
+            function showSuccess(message) {
+                $('#errorMessage').removeClass('alert-danger').addClass('alert-success')
+                    .text(message).fadeIn();
+            }
+
+            // Visual feedback for selected categories
+            $('.category-checkbox').on('change', function() {
+                const selectedCount = $('input[name="SelectedCategoryIds"]:checked').length;
+                $('#submitBtn').prop('disabled', selectedCount === 0);
+                
+                // Update button text with count
+                if (selectedCount > 0) {
+                    $('#submitBtn').html(`Hoàn tất (${selectedCount} chủ đề) <i class="fas fa-check ms-2"></i>`);
+                } else {
+                    $('#submitBtn').html('Hoàn tất <i class="fas fa-check ms-2"></i>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

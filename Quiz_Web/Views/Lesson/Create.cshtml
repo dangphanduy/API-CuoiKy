@@ -1,0 +1,301 @@
+﻿@model Quiz_Web.Models.ViewModels.LessonCreateViewModel
+
+@{
+    ViewData["Title"] = "Tạo Bài Học Mới";
+}
+
+<link rel="stylesheet" href="~/asset/css/createLessonAndText/CreateLesson.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<div class="lesson-creator-container">
+    <!-- Header -->
+    <div class="lesson-header">
+        <h1>✨ Tạo Bài Học Mới</h1>
+        <p>Tạo bài học tương tác với nhiều loại câu hỏi và slide khác nhau</p>
+    </div>
+
+    <div id="create-lesson-form">
+        @Html.AntiForgeryToken()
+
+        <!-- Lesson Info Card -->
+        <div class="info-card">
+            <h5 class="card-title">
+                <i class="bi bi-info-circle"></i>
+                Thông Tin Bài Học
+            </h5>
+            
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label for="Title" class="form-label">
+                        Tiêu đề <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="Title" 
+                           placeholder="VD: Bài học về lịch sử Việt Nam" 
+                           required>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="Visibility" class="form-label">Quyền truy cập</label>
+                    <select class="form-select" id="Visibility">
+                        <option value="public">🌍 Công khai</option>
+                        <option value="private">🔒 Riêng tư</option>
+                        <option value="unlisted">🔗 Không niêm yết</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="Description" class="form-label">Mô tả</label>
+                <textarea class="form-control" 
+                          id="Description" 
+                          rows="3" 
+                          placeholder="Mô tả ngắn gọn về nội dung bài học..."></textarea>
+            </div>
+
+            <div class="mb-0">
+                <label for="CoverUrl" class="form-label">
+                    URL Ảnh bìa
+                    <span class="tooltip-icon" title="Nhập link ảnh bìa cho bài học">?</span>
+                </label>
+                <input type="url" 
+                       class="form-control" 
+                       id="CoverUrl" 
+                       placeholder="https://example.com/image.jpg">
+            </div>
+        </div>
+
+        <!-- Slides Card -->
+        <div class="info-card">
+            <h5 class="card-title">
+                <i class="bi bi-collection"></i>
+                Các Slide (<span id="slide-count">0</span>)
+            </h5>
+            
+            <div id="slide-container" class="mb-3">
+                <!-- Slides will be added here dynamically -->
+            </div>
+
+            <div class="text-center mb-3">
+                <p class="text-muted mb-3">
+                    <i class="bi bi-lightbulb"></i> 
+                    Chọn loại slide bạn muốn thêm vào bài học
+                </p>
+                <div class="btn-group justify-content-center" role="group">
+                    <button type="button" id="add-flashcard-slide" class="btn btn-outline-primary">
+                        <i class="bi bi-card-text"></i> Flashcard
+                    </button>
+                    <button type="button" id="add-mcq-slide" class="btn btn-outline-success">
+                        <i class="bi bi-list-check"></i> Trắc nghiệm
+                    </button>
+                    <button type="button" id="add-truefalse-slide" class="btn btn-outline-info">
+                        <i class="bi bi-check2-circle"></i> Đúng/Sai
+                    </button>
+                    <button type="button" id="add-shorttext-slide" class="btn btn-outline-warning">
+                        <i class="bi bi-pencil-square"></i> Câu hỏi ngắn
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons d-flex justify-content-between align-items-center">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Hủy
+            </a>
+            <button type="button" id="save-lesson-button" class="btn btn-success">
+                <i class="bi bi-save"></i> Lưu Bài học
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Templates -->
+<template id="flashcard-template">
+    <div class="card slide-item" data-type="Flashcard">
+        <div class="card-header">
+            <span class="slide-number">Flashcard #<span class="slide-index">1</span></span>
+            <button type="button" class="btn btn-sm btn-danger remove-slide">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Câu hỏi (Mặt trước)</label>
+                    <textarea class="form-control stem-text-input" 
+                              rows="3" 
+                              placeholder="Nhập câu hỏi" 
+                              required></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Câu trả lời (Mặt sau)</label>
+                    <textarea class="form-control back-text-input" 
+                              rows="3" 
+                              placeholder="Nhập câu trả lời" 
+                              required></textarea>
+                </div>
+            </div>
+            <div class="mb-0">
+                <label class="form-label">Điểm</label>
+                <input type="number" 
+                       class="form-control points-input" 
+                       value="1" 
+                       min="0" 
+                       step="0.5"
+                       style="max-width: 150px;">
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="mcq-template">
+    <div class="card slide-item" data-type="MCQ_Single">
+        <div class="card-header">
+            <span class="slide-number">Trắc nghiệm #<span class="slide-index">1</span></span>
+            <button type="button" class="btn btn-sm btn-danger remove-slide">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Câu hỏi</label>
+                <textarea class="form-control stem-text-input" 
+                          rows="2" 
+                          placeholder="Nhập câu hỏi" 
+                          required></textarea>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Loại câu hỏi</label>
+                    <select class="form-select mcq-type-select">
+                        <option value="MCQ_Single">Một đáp án đúng</option>
+                        <option value="MCQ_Multi">Nhiều đáp án đúng</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Điểm</label>
+                    <input type="number" 
+                           class="form-control points-input" 
+                           value="1" 
+                           min="0" 
+                           step="0.5">
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">
+                    Các lựa chọn
+                    <span class="text-muted">(Chọn checkbox để đánh dấu đáp án đúng)</span>
+                </label>
+                <div class="options-container mb-2">
+                    <!-- Options will be added here -->
+                </div>
+                <button type="button" class="btn btn-sm add-option-btn">
+                    <i class="bi bi-plus-circle"></i> Thêm lựa chọn
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="truefalse-template">
+    <div class="card slide-item" data-type="TrueFalse">
+        <div class="card-header">
+            <span class="slide-number">Đúng/Sai #<span class="slide-index">1</span></span>
+            <button type="button" class="btn btn-sm btn-danger remove-slide">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Câu hỏi</label>
+                <textarea class="form-control stem-text-input" 
+                          rows="2" 
+                          placeholder="Nhập câu hỏi" 
+                          required></textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Đáp án đúng</label>
+                    <select class="form-select truefalse-answer">
+                        <option value="true">✅ Đúng</option>
+                        <option value="false">❌ Sai</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-0">
+                    <label class="form-label">Điểm</label>
+                    <input type="number" 
+                           class="form-control points-input" 
+                           value="1" 
+                           min="0" 
+                           step="0.5">
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="shorttext-template">
+    <div class="card slide-item" data-type="ShortText">
+        <div class="card-header">
+            <span class="slide-number">Câu hỏi ngắn #<span class="slide-index">1</span></span>
+            <button type="button" class="btn btn-sm btn-danger remove-slide">
+                <i class="bi bi-trash"></i> Xóa
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Câu hỏi</label>
+                <textarea class="form-control stem-text-input" 
+                          rows="2" 
+                          placeholder="Nhập câu hỏi" 
+                          required></textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Câu trả lời đúng</label>
+                    <input type="text" 
+                           class="form-control correct-text-input" 
+                           placeholder="Nhập câu trả lời đúng" 
+                           required>
+                </div>
+                <div class="col-md-4 mb-0">
+                    <label class="form-label">Điểm</label>
+                    <input type="number" 
+                           class="form-control points-input" 
+                           value="1" 
+                           min="0" 
+                           step="0.5">
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="option-template">
+    <div class="option-item input-group mb-2">
+        <div class="input-group-text">
+            <input class="form-check-input mt-0 option-correct-checkbox" 
+                   type="checkbox"
+                   title="Đánh dấu đây là đáp án đúng">
+        </div>
+        <input type="text" 
+               class="form-control option-text-input" 
+               placeholder="Nhập lựa chọn" 
+               required>
+        <button class="btn btn-outline-danger remove-option-btn" 
+                type="button"
+                title="Xóa lựa chọn này">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+</template>
+
+@section Scripts {
+    <script src="~/css/CreateLessonAndText/CreateLesson.js" asp-append-version="true"></script>
+}
