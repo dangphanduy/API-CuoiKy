@@ -1,0 +1,156 @@
+@model Quiz_Web.Models.Entities.Test
+@{
+    ViewData["Title"] = "Test Details";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Test Details: @Model.Title</h2>
+    <div>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+            <i class="bi bi-plus"></i> Add Question
+        </button>
+        <a href="@Url.Action("Tests")" class="btn btn-secondary">Back to Tests</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Test Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Owner:</strong> @Model.Owner?.FullName</p>
+                <p><strong>Visibility:</strong> @Model.Visibility</p>
+                <p><strong>Time Limit:</strong> @(Model.TimeLimitSec?.ToString() ?? "No limit") minutes</p>
+                <p><strong>Grading:</strong> @Model.GradingMode</p>
+                <p><strong>Created:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Total Questions:</strong> @Model.Questions.Count</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Questions (@Model.Questions.Count)</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Questions.Any())
+                {
+                    @foreach (var question in Model.Questions.OrderBy(q => q.OrderIndex))
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h6>Question @question.OrderIndex</h6>
+                                    <span class="badge bg-info">@question.Points pts</span>
+                                </div>
+                                <p>@question.StemText</p>
+                                
+                                @if (question.QuestionOptions.Any())
+                                {
+                                    <ul class="list-unstyled">
+                                        @foreach (var option in question.QuestionOptions.OrderBy(o => o.OrderIndex))
+                                        {
+                                            <li class="@(option.IsCorrect ? "text-success fw-bold" : "")">
+                                                @option.OrderIndex. @option.OptionText
+                                                @if (option.IsCorrect)
+                                                {
+                                                    <i class="bi bi-check-circle text-success"></i>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No questions added yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Question Modal -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" asp-action="AddQuestion">
+                <input type="hidden" name="TestId" value="@Model.TestId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Question</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Question Text</label>
+                        <textarea name="StemText" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Points</label>
+                        <input type="number" name="Points" class="form-control" value="1" step="0.1" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Question Type</label>
+                        <select name="Type" class="form-control">
+                            <option value="multiple_choice">Multiple Choice</option>
+                            <option value="true_false">True/False</option>
+                            <option value="short_answer">Short Answer</option>
+                        </select>
+                    </div>
+                    
+                    <div id="optionsContainer">
+                        <label class="form-label">Answer Options</label>
+                        <div class="option-group mb-2">
+                            <div class="input-group">
+                                <input type="text" name="Options[0].Text" class="form-control" placeholder="Option A" />
+                                <div class="input-group-text">
+                                    <input type="radio" name="CorrectOption" value="0" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="option-group mb-2">
+                            <div class="input-group">
+                                <input type="text" name="Options[1].Text" class="form-control" placeholder="Option B" />
+                                <div class="input-group-text">
+                                    <input type="radio" name="CorrectOption" value="1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="option-group mb-2">
+                            <div class="input-group">
+                                <input type="text" name="Options[2].Text" class="form-control" placeholder="Option C" />
+                                <div class="input-group-text">
+                                    <input type="radio" name="CorrectOption" value="2" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="option-group mb-2">
+                            <div class="input-group">
+                                <input type="text" name="Options[3].Text" class="form-control" placeholder="Option D" />
+                                <div class="input-group-text">
+                                    <input type="radio" name="CorrectOption" value="3" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
