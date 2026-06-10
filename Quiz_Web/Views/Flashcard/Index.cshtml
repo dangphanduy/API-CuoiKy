@@ -1,0 +1,210 @@
+@model List<Quiz_Web.Models.Entities.FlashcardSet>
+@{
+    ViewData["Title"] = "Danh sách Flashcard";
+}
+
+<!-- Compact Search Section -->
+<section class="py-4 search-section">
+    <div class="container">
+        <div class="search-wrapper">
+            <form asp-action="Search" method="get" class="search-form">
+                <input type="text" 
+                       name="q" 
+                       class="search-input" 
+                       placeholder="Tìm kiếm bộ flashcard..." 
+                       value="@ViewBag.SearchKeyword" />
+                <button type="submit" class="search-btn">
+                    <i class="fa-solid fa-search"></i>
+                    <span>Tìm</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Flashcards Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                @if (ViewBag.SearchKeyword != null)
+                {
+                    <text>Kết quả tìm kiếm: "@ViewBag.SearchKeyword"</text>
+                }
+                else
+                {
+                    <text>Tất cả bộ Flashcard</text>
+                }
+            </h2>
+            <span class="text-muted">@((ViewBag.TotalCount ?? 0)) bộ flashcard</span>
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5">
+                <i class="fa-solid fa-inbox fa-5x text-muted mb-3"></i>
+                <h3>Không tìm thấy bộ flashcard</h3>
+                <a asp-action="Index" class="btn btn-primary mt-3">Xem tất cả</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var set in Model)
+                {
+                    var cardCount = set.Flashcards?.Count ?? 0;
+                    var lastUpdated = set.UpdatedAt ?? set.CreatedAt;
+                    
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="flashcard-card-wrapper">
+                            <div class="card h-100 shadow-sm flashcard-card">
+                                <div class="position-relative">
+                                    @if (!string.IsNullOrEmpty(set.CoverUrl))
+                                    {
+                                        <img src="@set.CoverUrl" class="card-img-top" 
+                                             alt="@set.Title" style="height: 180px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-info d-flex align-items-center justify-content-center" 
+                                             style="height: 180px;">
+                                            <i class="fa-solid fa-layer-group fa-3x text-white"></i>
+                                        </div>
+                                    }
+                                    
+                                    <!-- Card count badge -->
+                                    <span class="position-absolute top-0 end-0 m-2 badge bg-dark bg-opacity-75">
+                                        <i class="fa-solid fa-credit-card me-1"></i>@cardCount thẻ
+                                    </span>
+                                </div>
+
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title fw-bold text-dark mb-2 flashcard-title" 
+                                        title="@set.Title">
+                                        @set.Title
+                                    </h6>
+                                    <p class="text-muted small mb-2" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <i class="fa-solid fa-user me-1"></i>@set.Owner.FullName
+                                    </p>
+                                    
+                                    @if (!string.IsNullOrWhiteSpace(set.Description))
+                                    {
+                                        <p class="text-muted small flashcard-description mb-2">
+                                            @set.Description
+                                        </p>
+                                    }
+                                    
+                                    <!-- Tags -->
+                                    @if (!string.IsNullOrWhiteSpace(set.TagsText))
+                                    {
+                                        <div class="mb-2">
+                                            @foreach (var tag in set.TagsText.Split(',').Take(3))
+                                            {
+                                                <span class="badge bg-light text-dark me-1">@tag.Trim()</span>
+                                            }
+                                        </div>
+                                    }
+
+                                    <!-- Action Buttons -->
+                                    <div class="mt-auto d-grid gap-2">
+                                        <a asp-action="Detail" asp-route-id="@set.SetId" 
+                                           class="btn btn-outline-info">
+                                            <i class="fa-solid fa-eye me-1"></i>Xem chi tiết
+                                        </a>
+                                        <a asp-action="Study" asp-route-setId="@set.SetId" 
+                                           class="btn btn-primary">
+                                            <i class="fa-solid fa-play me-1"></i>Học ngay
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Hover Detail Card (Left Side) -->
+                            <div class="hover-detail-card">
+                                <div class="hover-card-content">
+                                    <h5 class="fw-bold mb-3">@set.Title</h5>
+                                    
+                                    <div class="mb-2">
+                                        <small class="text-muted">Đã cập nhật</small>
+                                        <strong class="d-block">@lastUpdated.ToString("dd/MM/yyyy")</strong>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <small class="text-muted">Tổng số</small>
+                                        <strong class="d-block">@cardCount thẻ</strong>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted">Tạo bởi</small>
+                                        <strong class="d-block">@set.Owner.FullName</strong>
+                                    </div>
+                                    
+                                    @if (!string.IsNullOrWhiteSpace(set.Language))
+                                    {
+                                        <div class="mb-3">
+                                            <small class="text-muted">Ngôn ngữ:</small>
+                                            <strong>@set.Language</strong>
+                                        </div>
+                                    }
+                                    
+                                    @if (!string.IsNullOrWhiteSpace(set.Description))
+                                    {
+                                        <div class="mb-3">
+                                            <p class="small mb-0">@set.Description</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @if (ViewBag.CurrentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" 
+                                   asp-action="Index" 
+                                   asp-route-page="@(ViewBag.CurrentPage - 1)"
+                                   asp-route-search="@ViewBag.SearchKeyword">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" 
+                                   asp-action="Index" 
+                                   asp-route-page="@i"
+                                   asp-route-search="@ViewBag.SearchKeyword">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" 
+                                   asp-action="Index" 
+                                   asp-route-page="@(ViewBag.CurrentPage + 1)"
+                                   asp-route-search="@ViewBag.SearchKeyword">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+    </div>
+</section>
+
+<link rel="stylesheet" href="~/css/flashcard-index.css" asp-append-version="true" />
