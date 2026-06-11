@@ -671,6 +671,106 @@ namespace Quiz_Web.Controllers
 			return RedirectToAction("Tests");
 		}
 
+		// CLASS MANAGEMENT
+		//public async Task<IActionResult> Classes()
+		//{
+		//	var classes = await _context.Class.Include(c => c.Teacher).ToListAsync();
+		//	return View(classes);
+		//}
+
+		//[HttpPost]
+		//[ValidateAntiForgeryToken]
+		//public async Task<IActionResult> CreateClass(Class classEntity)
+		//{
+		//	// Custom validation
+		//	if (string.IsNullOrWhiteSpace(classEntity.Name) || classEntity.Name.Length > 200)
+		//	{
+		//		TempData["Error"] = "Class name is required and cannot exceed 200 characters";
+		//		return RedirectToAction("Classes");
+		//	}
+
+		//	if (string.IsNullOrWhiteSpace(classEntity.Code) || classEntity.Code.Length > 20)
+		//	{
+		//		TempData["Error"] = "Class code is required and cannot exceed 20 characters";
+		//		return RedirectToAction("Classes");
+		//	}
+
+		//	if (await _context.Classes.AnyAsync(c => c.Code == classEntity.Code.ToUpper().Trim()))
+		//	{
+		//		TempData["Error"] = "Class code already exists";
+		//		return RedirectToAction("Classes");
+		//	}
+
+		//	classEntity.Name = classEntity.Name.Trim();
+		//	classEntity.Code = classEntity.Code.ToUpper().Trim();
+		//	classEntity.Term = classEntity.Term?.Trim();
+		//	classEntity.Description = classEntity.Description?.Trim();
+		//	classEntity.CreatedAt = DateTime.UtcNow;
+		//	classEntity.TeacherId = GetCurrentUserId();
+
+		//	_context.Classes.Add(classEntity);
+		//	await _context.SaveChangesAsync();
+		//	TempData["Success"] = "Class created successfully";
+		//	return RedirectToAction("Classes");
+		//}
+
+		//public async Task<IActionResult> EditClass(int id)
+		//{
+		//	var classEntity = await _context.Classes.FindAsync(id);
+		//	if (classEntity == null) return NotFound();
+		//	return View(classEntity);
+		//}
+
+		//[HttpPost]
+		//[ValidateAntiForgeryToken]
+		//public async Task<IActionResult> EditClass(Class classEntity)
+		//{
+		//	// Custom validation
+		//	if (string.IsNullOrWhiteSpace(classEntity.Name) || classEntity.Name.Length > 200)
+		//	{
+		//		TempData["Error"] = "Class name is required and cannot exceed 200 characters";
+		//		return View(classEntity);
+		//	}
+
+		//	if (string.IsNullOrWhiteSpace(classEntity.Code) || classEntity.Code.Length > 20)
+		//	{
+		//		TempData["Error"] = "Class code is required and cannot exceed 20 characters";
+		//		return View(classEntity);
+		//	}
+
+		//	if (await _context.Classes.AnyAsync(c => c.Code == classEntity.Code.ToUpper().Trim() && c.ClassId != classEntity.ClassId))
+		//	{
+		//		TempData["Error"] = "Class code already exists";
+		//		return View(classEntity);
+		//	}
+
+		//	var existingClass = await _context.Classes.FindAsync(classEntity.ClassId);
+		//	if (existingClass == null) return NotFound();
+
+		//	existingClass.Name = classEntity.Name.Trim();
+		//	existingClass.Code = classEntity.Code.ToUpper().Trim();
+		//	existingClass.Term = classEntity.Term?.Trim();
+		//	existingClass.Description = classEntity.Description?.Trim();
+
+		//	await _context.SaveChangesAsync();
+		//	TempData["Success"] = "Class updated successfully";
+		//	return RedirectToAction("Classes");
+		//}
+
+		//[HttpPost]
+		//[ValidateAntiForgeryToken]
+		//public async Task<IActionResult> DeleteClass(int id)
+		//{
+		//	var classEntity = await _context.Classes.FindAsync(id);
+		//	if (classEntity != null)
+		//	{
+		//		_context.Classes.Remove(classEntity);
+		//		await _context.SaveChangesAsync();
+		//		TempData["Success"] = "Class deleted successfully";
+		//	}
+		//	return RedirectToAction("Classes");
+		//}
+
 		// REPORTS
 		public async Task<IActionResult> UserReports()
 		{
