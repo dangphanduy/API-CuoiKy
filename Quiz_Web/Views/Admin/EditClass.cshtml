@@ -1,0 +1,57 @@
+@model Quiz_Web.Models.Entities.Class
+@{
+    ViewData["Title"] = "Edit Class";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Edit Class</h2>
+    <a href="@Url.Action("Classes")" class="btn btn-secondary">Back to Classes</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="EditClass">
+            <input type="hidden" asp-for="ClassId" />
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Class Name *</label>
+                        <input asp-for="Name" class="form-control" required maxlength="200" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Code" class="form-label">Class Code *</label>
+                        <input asp-for="Code" class="form-control" required maxlength="20" />
+                        <div class="form-text">Unique identifier for the class</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Term" class="form-label">Term</label>
+                <input asp-for="Term" class="form-control" maxlength="50" placeholder="e.g., Fall 2024" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3" maxlength="500"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Update Class</button>
+                <a href="@Url.Action("Classes")" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
