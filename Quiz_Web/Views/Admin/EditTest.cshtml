@@ -1,0 +1,78 @@
+@model Quiz_Web.Models.Entities.Test
+@{
+    ViewData["Title"] = "Edit Test";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Edit Test</h2>
+    <a href="@Url.Action("Tests")" class="btn btn-secondary">Back to Tests</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="EditTest">
+            <input type="hidden" asp-for="TestId" />
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title *</label>
+                        <input asp-for="Title" class="form-control" required maxlength="200" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="TimeLimitSec" class="form-label">Time Limit (minutes)</label>
+                        <input asp-for="TimeLimitSec" type="number" class="form-control" min="1" max="1440" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="Visibility" class="form-label">Visibility</label>
+                        <select asp-for="Visibility" class="form-control">
+                            <option value="public" selected="@(Model.Visibility == "public")">Public</option>
+                            <option value="private" selected="@(Model.Visibility == "private")">Private</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="GradingMode" class="form-label">Grading Mode</label>
+                        <select asp-for="GradingMode" class="form-control">
+                            <option value="auto" selected="@(Model.GradingMode == "auto")">Auto</option>
+                            <option value="manual" selected="@(Model.GradingMode == "manual")">Manual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="MaxAttempts" class="form-label">Max Attempts</label>
+                        <input asp-for="MaxAttempts" type="number" class="form-control" min="1" max="10" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Update Test</button>
+                <a href="@Url.Action("Tests")" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

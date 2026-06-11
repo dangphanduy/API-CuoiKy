@@ -1,0 +1,127 @@
+﻿@model IEnumerable<Quiz_Web.Models.Entities.FlashcardSet>
+
+@{
+    ViewData["Title"] = "Khám Phá Flashcards";
+}
+
+<link rel="stylesheet" href="~/css/flashcards/flashcardItem.css" />
+
+<div class="container mt-4">
+    <h1 class="mb-4">Khám Phá Bộ Flashcard Công Khai</h1>
+    
+    @if (Model != null && Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-3">
+            @foreach (var flashcardSet in Model)
+            {
+                <div class="col">
+                    <div class="card flashcard-explore-card h-100">
+                        @if (!string.IsNullOrEmpty(flashcardSet.CoverUrl))
+                        {
+                            <img src="@flashcardSet.CoverUrl" class="flashcard-card-image" alt="@flashcardSet.Title">
+                        }
+                        else
+                        {
+                            <div class="flashcard-card-image-placeholder">
+                                <i class="bi bi-collection-fill text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        }
+                        
+                        <div class="card-body flashcard-card-body d-flex flex-column p-0">
+                            <div style="padding: 1rem;">
+                                <h5 class="flashcard-card-title">@flashcardSet.Title</h5>
+                                
+                                @if (!string.IsNullOrEmpty(flashcardSet.Description))
+                                {
+                                    <p class="flashcard-card-description">@flashcardSet.Description</p>
+                                }
+                                
+                                <div class="flashcard-card-meta">
+                                    <small>
+                                        <i class="bi bi-person-fill"></i> @flashcardSet.Owner.FullName
+                                    </small>
+                                    <small>
+                                        <i class="bi bi-card-list"></i> @flashcardSet.Flashcards.Count thẻ
+                                    </small>
+                                </div>
+                                
+                                @if (!string.IsNullOrEmpty(flashcardSet.TagsText))
+                                {
+                                    <div class="flashcard-card-tags">
+                                        @foreach (var tag in flashcardSet.TagsText.Split(',').Take(3))
+                                        {
+                                            <span class="badge bg-info">@tag.Trim()</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer flashcard-card-footer">
+                            <small><i class="bi bi-clock-fill"></i> @flashcardSet.CreatedAt.ToString("dd/MM/yyyy")</small>
+                        </div>
+
+                        <!-- Hover Popup -->
+                        <div class="flashcard-hover-popup">
+                            <h5>@flashcardSet.Title</h5>
+                            
+                            <div class="popup-meta">
+                                <div class="popup-meta-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>Đã cập nhật <strong>@(flashcardSet.UpdatedAt?.ToString("dd 'tháng' M 'năm' yyyy") ?? flashcardSet.CreatedAt.ToString("dd 'tháng' M 'năm' yyyy"))</strong></span>
+                                </div>
+                                <div class="popup-meta-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Tổng số <strong>@flashcardSet.Flashcards.Count</strong> thẻ</span>
+                                </div>
+                                <div class="popup-meta-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>Tạo bởi <strong>@flashcardSet.Owner.FullName</strong></span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(flashcardSet.Language))
+                                {
+                                    <div class="popup-meta-item">
+                                        <i class="bi bi-translate"></i>
+                                        <span>Ngôn ngữ: <strong>@flashcardSet.Language</strong></span>
+                                    </div>
+                                }
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(flashcardSet.Description))
+                            {
+                                <div class="popup-description">
+                                    @flashcardSet.Description
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(flashcardSet.TagsText))
+                            {
+                                <div class="popup-tags">
+                                    @foreach (var tag in flashcardSet.TagsText.Split(','))
+                                    {
+                                        <span class="badge bg-secondary">@tag.Trim()</span>
+                                    }
+                                </div>
+                            }
+                            
+                            <div class="popup-actions">
+                                <a href="/flashcard/study/@flashcardSet.SetId" class="btn btn-primary">
+                                    <i class="bi bi-play-fill"></i> Học ngay
+                                </a>
+                                <button class="btn btn-outline-secondary" onclick="event.stopPropagation();">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle-fill"></i> Hiện chưa có bộ flashcard công khai nào.
+        </div>
+    }
+</div>

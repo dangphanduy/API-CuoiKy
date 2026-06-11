@@ -1,0 +1,164 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Báo cáo hoạt động kiểm tra";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Báo cáo hoạt động kiểm tra</h2>
+    <div class="btn-group">
+        <button type="button" class="btn btn-success" onclick="doExportCSV()">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Xuất CSV
+        </button>
+        <button type="button" class="btn btn-primary" onclick="doExportExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalTests</h4>
+                        <p class="mb-0">Tổng bài kiểm tra</p>
+                    </div>
+                    <i class="bi bi-clipboard-check fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalAttempts</h4>
+                        <p class="mb-0">Tổng lượt thi</p>
+                    </div>
+                    <i class="bi bi-graph-up fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Lần thử gần đây</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.RecentAttempts != null && ((IEnumerable<dynamic>)Model.RecentAttempts).Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Người dùng</th>
+                                    <th>Bài kiểm tra</th>
+                                    <th>Điểm</th>
+                                    <th>Ngày</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var attempt in Model.RecentAttempts)
+                                {
+                                    <tr>
+                                        <td>@attempt.FullName</td>
+                                        <td>@attempt.Title</td>
+                                        <td>
+                                            @if (attempt.Score != null && attempt.MaxScore != null)
+                                            {
+                                                var percentage = (decimal)attempt.Score / attempt.MaxScore * 100;
+                                                var badgeClass = percentage >= 80 ? "bg-success" : percentage >= 60 ? "bg-warning" : "bg-danger";
+                                                <span>@attempt.Score/@attempt.MaxScore </span>
+                                                <span class="badge @badgeClass">@percentage.ToString("F0")%</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Đang thực hiện</span>
+                                            }
+                                        </td>
+                                        <td>@attempt.StartedAt.ToString("dd/MM HH:mm")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>Chưa có lần thi nào được ghi nhận.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Điểm cao nhất</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.TopScores != null && ((IEnumerable<dynamic>)Model.TopScores).Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Người dùng</th>
+                                    <th>Bài kiểm tra</th>
+                                    <th>Điểm</th>
+                                    <th>Phần trăm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var attempt in Model.TopScores)
+                                {
+                                    var badgeClass = attempt.Percentage >= 80 ? "bg-success" : attempt.Percentage >= 60 ? "bg-warning" : "bg-danger";
+                                    <tr>
+                                        <td>@attempt.FullName</td>
+                                        <td>@attempt.Title</td>
+                                        <td>@attempt.Score/@attempt.MaxScore</td>
+                                        <td>
+                                            <span class="badge @badgeClass">
+                                                @attempt.Percentage.ToString("F1")%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>Chưa có điểm số nào được ghi nhận.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="~/js/admin/export-reports.js"></script>
+    <script>
+        // ✅ FIX: Đổi tên function để tránh đệ quy vô hạn
+        function doExportCSV() {
+            exportToCSV('Báo cáo hoạt động kiểm tra');
+        }
+        
+        function doExportExcel() {
+            exportToExcel('Báo cáo hoạt động kiểm tra');
+        }
+    </script>
+}

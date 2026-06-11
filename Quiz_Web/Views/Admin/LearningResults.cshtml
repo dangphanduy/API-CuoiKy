@@ -1,0 +1,170 @@
+@model Quiz_Web.Models.ViewModels.LearningResultsViewModel
+@{
+    ViewData["Title"] = "Kết quả học tập và chứng chỉ";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Kết quả học tập và chứng chỉ</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Kết quả học tập</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <h4>@Model.AverageScore.ToString("F1")</h4>
+                    <p class="mb-0">Điểm trung bình</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-gradient-success text-white">
+                <div class="card-body">
+                    <h4>@Model.TotalCertificates</h4>
+                    <p class="mb-0">Tổng chứng chỉ đã cấp</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Phân bố điểm số</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="testScoresChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Chứng chỉ theo danh mục</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="certificatesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performers Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top 10 học viên xuất sắc</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Hạng</th>
+                                    <th>Tên học viên</th>
+                                    <th>Điểm trung bình</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.TopPerformers.Count; i++)
+                                {
+                                    var performer = Model.TopPerformers[i];
+                                    <tr>
+                                        <td>
+                                            @if (i == 0)
+                                            {
+                                                <i class="fas fa-trophy text-warning"></i>
+                                            }
+                                            else if (i == 1)
+                                            {
+                                                <i class="fas fa-medal text-secondary"></i>
+                                            }
+                                            else if (i == 2)
+                                            {
+                                                <i class="fas fa-award text-warning"></i>
+                                            }
+                                            else
+                                            {
+                                                <span>@(i + 1)</span>
+                                            }
+                                        </td>
+                                        <td>@performer.Name</td>
+                                        <td>@performer.Value</td>
+                                        <td>
+                                            <span class="badge @(performer.Status == "Excellent" ? "bg-success" : "bg-primary")">
+                                                @(performer.Status == "Excellent" ? "Xuất sắc" : "Tốt")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Test Scores Bar Chart
+        const scoresCtx = document.getElementById('testScoresChart').getContext('2d');
+        new Chart(scoresCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.TestScores.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Số lượng',
+                    data: @Html.Raw(Json.Serialize(Model.TestScores.Select(x => x.Value))),
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.8)',   // Needs Improvement - Red
+                        'rgba(255, 193, 7, 0.8)',   // Good - Yellow
+                        'rgba(40, 167, 69, 0.8)'    // Excellent - Green
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Certificates Pie Chart
+        const certificatesCtx = document.getElementById('certificatesChart').getContext('2d');
+        new Chart(certificatesCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CertificatesByType.Select(x => x.Label))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.CertificatesByType.Select(x => x.Value))),
+                    backgroundColor: @Html.Raw(Json.Serialize(Model.CertificatesByType.Select(x => x.Color)))
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+}

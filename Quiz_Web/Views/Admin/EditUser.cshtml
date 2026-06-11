@@ -1,0 +1,85 @@
+@model Quiz_Web.Models.Entities.User
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Edit User</h2>
+    <a href="@Url.Action("Users")" class="btn btn-secondary">Back to Users</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="EditUser">
+            <input type="hidden" asp-for="UserId" />
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label">Username *</label>
+                        <input asp-for="Username" class="form-control" required minlength="3" maxlength="100" />
+                        <div class="form-text">3-100 characters</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label">Full Name *</label>
+                        <input asp-for="FullName" class="form-control" required maxlength="200" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email *</label>
+                        <input asp-for="Email" type="email" class="form-control" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <input asp-for="Phone" type="tel" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="RoleId" class="form-label">Role *</label>
+                        <select asp-for="RoleId" class="form-control" required>
+                            @foreach (var role in ViewBag.Roles)
+                            {
+                                <option value="@role.RoleId" selected="@(role.RoleId == Model.RoleId)">@role.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label">Status</label>
+                        <select asp-for="Status" class="form-control">
+                            <option value="1" selected="@(Model.Status == 1)">Active</option>
+                            <option value="0" selected="@(Model.Status == 0)">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Update User</button>
+                <a href="@Url.Action("Users")" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
