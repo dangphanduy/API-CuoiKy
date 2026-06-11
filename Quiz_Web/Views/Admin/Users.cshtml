@@ -1,0 +1,149 @@
+@model List<Quiz_Web.Models.Entities.User>
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Quản lý người dùng</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+        <i class="fas fa-plus"></i> Thêm người dùng
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table id="usersTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Họ và tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.UserId</td>
+                        <td>@user.Username</td>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>@(user.Role?.Name ?? "N/A")</td>
+                        <td>
+                            <span class="badge @(user.Status == 1 ? "bg-success" : "bg-danger")">
+                                @(user.Status == 1 ? "Hoạt động" : "Không hoạt động")
+                            </span>
+                        </td>
+                        <td>@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <a href="@Url.Action("EditUser", new { id = user.UserId })" class="btn btn-sm btn-outline-primary">Sửa</a>
+                            <form method="post" asp-action="DeleteUser" class="d-inline">
+                                <input type="hidden" name="id" value="@user.UserId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function() {
+    $('#usersTable').DataTable({
+        responsive: true,
+        pageLength: 10,
+        order: [[0, 'desc']],
+        columnDefs: [
+            { orderable: false, targets: [7] }
+        ],
+        language: {
+            search: "Tìm kiếm người dùng:",
+            lengthMenu: "Hiển thị _MENU_ người dùng mỗi trang",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ người dùng",
+            paginate: {
+                first: "Đầu tiên",
+                last: "Cuối cùng",
+                next: "Tiếp theo",
+                previous: "Trước đó"
+            }
+        }
+    });
+});
+</script>
+}
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-action="CreateUser">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tạo người dùng mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập *</label>
+                        <input type="text" name="Username" class="form-control" required minlength="3" maxlength="100" />
+                        <div class="form-text">3-100 ký tự</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên *</label>
+                        <input type="text" name="FullName" class="form-control" required maxlength="200" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" name="Email" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu *</label>
+                        <input type="password" name="Password" class="form-control" required minlength="8" />
+                        <div class="form-text">Tối thiểu 8 ký tự</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="tel" name="Phone" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò *</label>
+                        <select name="RoleId" class="form-control" required>
+                            @foreach (var role in ViewBag.Roles)
+                            {
+                                <option value="@role.RoleId" selected=@(role.RoleId == 3 ? "selected" : "")>@role.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Tạo người dùng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

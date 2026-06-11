@@ -89,6 +89,152 @@ namespace Quiz_Web.Controllers
 			return Json(data);
 		}
 
+		// USER MANAGEMENT
+		public async Task<IActionResult> Users()
+		{
+			var users = await _context.Users.Include(u => u.Role).ToListAsync();
+			ViewBag.Roles = await _context.Roles.ToListAsync();
+			return View(users);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> CreateUser(User user, string password)
+		{
+			// Custom validation
+			if (!Validation.IsValidUsername(user.Username))
+			{
+				TempData["Error"] = "Username must be between 3 and 100 characters";
+				return RedirectToAction("Users");
+			}
+
+			if (!Validation.IsValidFullName(user.FullName))
+			{
+				TempData["Error"] = "Full name is required and cannot exceed 200 characters";
+				return RedirectToAction("Users");
+			}
+
+			if (!Validation.IsValidEmail(user.Email))
+			{
+				TempData["Error"] = "Invalid email format";
+				return RedirectToAction("Users");
+			}
+
+			if (!Validation.IsValidPassword(password))
+			{
+				TempData["Error"] = "Password must be at least 8 characters with uppercase, lowercase, number and special character";
+				return RedirectToAction("Users");
+			}
+
+			if (!Validation.IsValidPhone(user.Phone))
+			{
+				TempData["Error"] = "Invalid phone number format";
+				return RedirectToAction("Users");
+			}
+
+			if (await _context.Users.AnyAsync(u => u.Username == user.Username))
+			{
+				TempData["Error"] = "Username already exists";
+				return RedirectToAction("Users");
+			}
+
+			if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+			{
+				TempData["Error"] = "Email already exists";
+				return RedirectToAction("Users");
+			}
+
+			user.Username = user.Username.ToLower().Trim();
+			user.FullName = user.FullName.Trim();
+			user.Email = user.Email.ToLower().Trim();
+			user.PasswordHash = HashHelper.ComputeHash(password);
+			user.Status = 1;
+			user.CreatedAt = DateTime.UtcNow;
+
+			_context.Users.Add(user);
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "User created successfully";
+			return RedirectToAction("Users");
+		}
+
+		public async Task<IActionResult> EditUser(int id)
+		{
+			var user = await _context.Users.FindAsync(id);
+			if (user == null) return NotFound();
+
+			ViewBag.Roles = await _context.Roles.ToListAsync();
+			return View(user);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> EditUser(User user)
+		{
+			// Custom validation
+			if (!Validation.IsValidUsername(user.Username))
+			{
+				TempData["Error"] = "Username must be between 3 and 100 characters";
+				ViewBag.Roles = await _context.Roles.ToListAsync();
+				return View(user);
+			}
+
+			if (!Validation.IsValidFullName(user.FullName))
+			{
+				TempData["Error"] = "Full name is required and cannot exceed 200 characters";
+				ViewBag.Roles = await _context.Roles.ToListAsync();
+				return View(user);
+			}
+
+			if (!Validation.IsValidEmail(user.Email))
+			{
+				TempData["Error"] = "Invalid email format";
+				ViewBag.Roles = await _context.Roles.ToListAsync();
+				return View(user);
+			}
+
+			if (!Validation.IsValidPhone(user.Phone))
+			{
+				TempData["Error"] = "Invalid phone number format";
+				ViewBag.Roles = await _context.Roles.ToListAsync();
+				return View(user);
+			}
+
+			if (await _context.Users.AnyAsync(u => u.Username == user.Username && u.UserId != user.UserId))
+			{
+				TempData["Error"] = "Username already exists";
+				ViewBag.Roles = await _context.Roles.ToListAsync();
+				return View(user);
+			}
+
+			var existingUser = await _context.Users.FindAsync(user.UserId);
+			if (existingUser == null) return NotFound();
+
+			existingUser.Username = user.Username.ToLower().Trim();
+			existingUser.FullName = user.FullName.Trim();
+			existingUser.Email = user.Email.ToLower().Trim();
+			existingUser.Phone = user.Phone;
+			existingUser.RoleId = user.RoleId;
+			existingUser.Status = user.Status;
+
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "User updated successfully";
+			return RedirectToAction("Users");
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteUser(int id)
+		{
+			var user = await _context.Users.FindAsync(id);
+			if (user != null)
+			{
+				_context.Users.Remove(user);
+				await _context.SaveChangesAsync();
+				TempData["Success"] = "User deleted successfully";
+			}
+			return RedirectToAction("Users");
+		}
+
 		// CATEGORY MANAGEMENT
 		public async Task<IActionResult> Categories()
 		{
