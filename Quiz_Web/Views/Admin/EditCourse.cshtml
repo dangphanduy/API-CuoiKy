@@ -1,0 +1,74 @@
+@model Quiz_Web.Models.Entities.Course
+@{
+    ViewData["Title"] = "Edit Course";
+    Layout = "_LayoutAdmin";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Edit Course</h2>
+    <a href="@Url.Action("Courses")" class="btn btn-secondary">Back to Courses</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" asp-action="EditCourse">
+            <input type="hidden" asp-for="CourseId" />
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title *</label>
+                        <input asp-for="Title" class="form-control" required maxlength="200" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label">Slug *</label>
+                        <input asp-for="Slug" class="form-control" required maxlength="100" />
+                        <div class="form-text">Lowercase letters, numbers, and hyphens only</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Summary" class="form-label">Summary</label>
+                <textarea asp-for="Summary" class="form-control" rows="3" maxlength="500"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Price" class="form-label">Price *</label>
+                        <input asp-for="Price" type="number" class="form-control" step="0.01" min="0" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="CoverUrl" class="form-label">Cover Image URL</label>
+                        <input asp-for="CoverUrl" type="url" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check">
+                    <input asp-for="IsPublished" type="checkbox" class="form-check-input" />
+                    <label asp-for="IsPublished" class="form-check-label">Published</label>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Update Course</button>
+                <a href="@Url.Action("Courses")" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

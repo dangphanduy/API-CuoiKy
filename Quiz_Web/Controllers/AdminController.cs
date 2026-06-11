@@ -235,6 +235,131 @@ namespace Quiz_Web.Controllers
 			return RedirectToAction("Users");
 		}
 
+		// COURSE MANAGEMENT
+		public async Task<IActionResult> Courses()
+		{
+			var courses = await _context.Courses.Include(c => c.Owner).Include(c => c.Category).ToListAsync();
+			ViewBag.Categories = await _context.CourseCategories.ToListAsync();
+			return View(courses);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> CreateCourse(Course course)
+		{
+			// Custom validation
+			if (string.IsNullOrWhiteSpace(course.Title) || course.Title.Length > 200)
+			{
+				TempData["Error"] = "Title is required and cannot exceed 200 characters";
+				return RedirectToAction("Courses");
+			}
+
+			if (string.IsNullOrWhiteSpace(course.Slug) || course.Slug.Length > 100)
+			{
+				TempData["Error"] = "Slug is required and cannot exceed 100 characters";
+				return RedirectToAction("Courses");
+			}
+
+			if (course.Price < 0)
+			{
+				TempData["Error"] = "Price must be a positive number";
+				return RedirectToAction("Courses");
+			}
+
+			if (!string.IsNullOrEmpty(course.CoverUrl) && !Uri.IsWellFormedUriString(course.CoverUrl, UriKind.Absolute))
+			{
+				TempData["Error"] = "Invalid URL format for cover image";
+				return RedirectToAction("Courses");
+			}
+
+			if (await _context.Courses.AnyAsync(c => c.Slug == course.Slug.ToLower().Trim()))
+			{
+				TempData["Error"] = "Slug already exists";
+				return RedirectToAction("Courses");
+			}
+
+			course.Title = course.Title.Trim();
+			course.Slug = course.Slug.ToLower().Trim();
+			course.Summary = course.Summary?.Trim();
+			course.OwnerId = GetCurrentUserId();
+			course.CreatedAt = DateTime.UtcNow;
+
+			_context.Courses.Add(course);
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "Course created successfully";
+			return RedirectToAction("Courses");
+		}
+
+		public async Task<IActionResult> EditCourse(int id)
+		{
+			var course = await _context.Courses.FindAsync(id);
+			if (course == null) return NotFound();
+			return View(course);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> EditCourse(Course course)
+		{
+			if (string.IsNullOrWhiteSpace(course.Title) || course.Title.Length > 200)
+			{
+				TempData["Error"] = "Title is required and cannot exceed 200 characters";
+				return View(course);
+			}
+
+			if (string.IsNullOrWhiteSpace(course.Slug) || course.Slug.Length > 100)
+			{
+				TempData["Error"] = "Slug is required and cannot exceed 100 characters";
+				return View(course);
+			}
+
+			if (course.Price < 0)
+			{
+				TempData["Error"] = "Price must be a positive number";
+				return View(course);
+			}
+
+			if (!string.IsNullOrEmpty(course.CoverUrl) && !Uri.IsWellFormedUriString(course.CoverUrl, UriKind.Absolute))
+			{
+				TempData["Error"] = "Invalid URL format for cover image";
+				return View(course);
+			}
+
+			if (await _context.Courses.AnyAsync(c => c.Slug == course.Slug.ToLower().Trim() && c.CourseId != course.CourseId))
+			{
+				TempData["Error"] = "Slug already exists";
+				return View(course);
+			}
+
+			var existingCourse = await _context.Courses.FindAsync(course.CourseId);
+			if (existingCourse == null) return NotFound();
+
+			existingCourse.Title = course.Title.Trim();
+			existingCourse.Slug = course.Slug.ToLower().Trim();
+			existingCourse.Summary = course.Summary?.Trim();
+			existingCourse.Price = course.Price;
+			existingCourse.CoverUrl = course.CoverUrl;
+			existingCourse.IsPublished = course.IsPublished;
+
+			await _context.SaveChangesAsync();
+			TempData["Success"] = "Course updated successfully";
+			return RedirectToAction("Courses");
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteCourse(int id)
+		{
+			var course = await _context.Courses.FindAsync(id);
+			if (course != null)
+			{
+				_context.Courses.Remove(course);
+				await _context.SaveChangesAsync();
+				TempData["Success"] = "Course deleted successfully";
+			}
+			return RedirectToAction("Courses");
+		}
+
 		// CATEGORY MANAGEMENT
 		public async Task<IActionResult> Categories()
 		{
