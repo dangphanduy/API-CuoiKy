@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 using Quiz_Web.Models.ViewModels;
 using Quiz_Web.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -13,18 +13,18 @@ namespace Quiz_Web.Controllers
 	public class CourseController : Controller
 	{
 		private readonly ILogger<CourseController> _logger;
-		private readonly ICourseService _courseService;
+		//private readonly ICourseService _courseService;
 		private readonly IWebHostEnvironment _env;
 		private readonly LearningPlatformContext _context;
 
 		public CourseController(
 			ILogger<CourseController> logger,
-			ICourseService courseService,
+			//ICourseService courseService,
 			IWebHostEnvironment env,
 			LearningPlatformContext context)
 		{
 			_logger = logger;
-			_courseService = courseService;
+			//_courseService = courseService;
 			_env = env;
 			_context = context;
 		}
@@ -43,13 +43,13 @@ namespace Quiz_Web.Controllers
 		{
 			_logger.LogInformation($"Courses Index - Search: {search}, Page: {page}, MinRating: {minRating}, MaxRating: {maxRating}, IsFree: {isFree}, SortBy: {sortBy}");
 
-			var courses = _courseService.GetFilteredAndSortedCourses(
-				searchKeyword: search,
-				categorySlug: null,
-				minRating: minRating,
-				maxRating: maxRating,
-				isFree: isFree,
-				sortBy: sortBy);
+			//var courses = _courseService.GetFilteredAndSortedCourses(
+			//	searchKeyword: search,
+			//	categorySlug: null,
+			//	minRating: minRating,
+			//	maxRating: maxRating,
+			//	isFree: isFree,
+			//	sortBy: sortBy);
 
 			ViewBag.SearchKeyword = search;
 			ViewBag.MinRating = minRating;
@@ -57,16 +57,16 @@ namespace Quiz_Web.Controllers
 			ViewBag.IsFree = isFree;
 			ViewBag.SortBy = sortBy;
 
-			var totalCount = courses.Count;
+			//var totalCount = courses.Count;
 			var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-			var pagedCourses = courses.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+			//var pagedCourses = courses.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
 			ViewBag.CurrentPage = page;
 			ViewBag.TotalPages = totalPages;
 			ViewBag.PageSize = pageSize;
 			ViewBag.TotalCount = totalCount;
 
-			return View(pagedCourses);
+			//return View(pagedCourses);
 		}
 
 		// GET: /courses/search?q=keyword
@@ -147,7 +147,7 @@ namespace Quiz_Web.Controllers
 				var ext = Path.GetExtension(coverFile.FileName).ToLowerInvariant();
 				if (!allowed.Contains(ext))
 				{
-					ModelState.AddModelError(nameof(model.CoverUrl), "Ð?nh d?ng ?nh không h?p l? (jpg, jpeg, png, gif, webp).");
+					ModelState.AddModelError(nameof(model.CoverUrl), "ï¿½?nh d?ng ?nh khï¿½ng h?p l? (jpg, jpeg, png, gif, webp).");
 					return View(model);
 				}
 
@@ -168,7 +168,7 @@ namespace Quiz_Web.Controllers
 
 			if (!_courseService.IsSlugUnique(model.Slug))
 			{
-				ModelState.AddModelError("Slug", "Slug này dã t?n t?i. Vui lòng ch?n slug khác.");
+				ModelState.AddModelError("Slug", "Slug nï¿½y dï¿½ t?n t?i. Vui lï¿½ng ch?n slug khï¿½c.");
 				return View(model);
 			}
 
@@ -176,11 +176,11 @@ namespace Quiz_Web.Controllers
 
 			if (course == null)
 			{
-				TempData["Error"] = "Có l?i x?y ra khi t?o khóa h?c";
+				TempData["Error"] = "Cï¿½ l?i x?y ra khi t?o khï¿½a h?c";
 				return View(model);
 			}
 
-			TempData["Success"] = "T?o khóa h?c thành công!";
+			TempData["Success"] = "T?o khï¿½a h?c thï¿½nh cï¿½ng!";
 			return RedirectToAction("Detail", new { slug = course.Slug });
 		}
 
@@ -248,7 +248,7 @@ namespace Quiz_Web.Controllers
 				var ext = Path.GetExtension(coverFile.FileName).ToLowerInvariant();
 				if (!allowed.Contains(ext))
 				{
-					ModelState.AddModelError(nameof(model.CoverUrl), "Ð?nh d?ng ?nh không h?p l? (jpg, jpeg, png, gif, webp).");
+					ModelState.AddModelError(nameof(model.CoverUrl), "ï¿½?nh d?ng ?nh khï¿½ng h?p l? (jpg, jpeg, png, gif, webp).");
 					return View("Edit", model);
 				}
 
@@ -272,7 +272,7 @@ namespace Quiz_Web.Controllers
 				.Any(c => c.Slug == model.Slug && c.CourseId != model.CourseId);
 			if (slugClash)
 			{
-				ModelState.AddModelError(nameof(model.Slug), "Slug này dã t?n t?i.");
+				ModelState.AddModelError(nameof(model.Slug), "Slug nï¿½y dï¿½ t?n t?i.");
 				return View("Edit", model);
 			}
 
@@ -280,11 +280,11 @@ namespace Quiz_Web.Controllers
 			var updated = _courseService.UpdateCourse(model, userId, sanitized);
 			if (updated == null)
 			{
-				TempData["Error"] = "Không th? c?p nh?t khóa h?c.";
+				TempData["Error"] = "Khï¿½ng th? c?p nh?t khï¿½a h?c.";
 				return View("Edit", model);
 			}
 
-			TempData["Success"] = "C?p nh?t khóa h?c thành công!";
+			TempData["Success"] = "C?p nh?t khï¿½a h?c thï¿½nh cï¿½ng!";
 			return RedirectToAction("Detail", new { slug = updated.Slug });
 		}
 
@@ -369,7 +369,7 @@ namespace Quiz_Web.Controllers
 		public IActionResult Enroll(int id)
 		{
 			_logger.LogInformation($"Enroll attempt for course ID: {id}");
-			TempData["Info"] = "Tính nang dang ký khóa h?c dang du?c phát tri?n!";
+			TempData["Info"] = "Tï¿½nh nang dang kï¿½ khï¿½a h?c dang du?c phï¿½t tri?n!";
 			return RedirectToAction(nameof(Detail), new { id });
 		}
 
@@ -386,9 +386,9 @@ namespace Quiz_Web.Controllers
 
 			var ok = _courseService.DeleteCourse(id, userId, _env.WebRootPath);
 			if (!ok)
-				TempData["Error"] = "Không th? xóa khóa h?c.";
+				TempData["Error"] = "Khï¿½ng th? xï¿½a khï¿½a h?c.";
 			else
-				TempData["Success"] = "Ðã xóa khóa h?c.";
+				TempData["Success"] = "ï¿½ï¿½ xï¿½a khï¿½a h?c.";
 
 			return RedirectToAction(nameof(My));
 		}
@@ -432,7 +432,7 @@ namespace Quiz_Web.Controllers
 			// Proactively return 409 if slug duplicates (excluding current course when editing)
 			if (!_courseService.IsSlugUnique(model.Slug, model.CourseId))
 			{
-				return StatusCode(409, new { success = false, code = "DuplicateSlug", message = "Slug này dã t?n t?i." });
+				return StatusCode(409, new { success = false, code = "DuplicateSlug", message = "Slug nï¿½y dï¿½ t?n t?i." });
 			}
 
 			var success = _courseService.AutosaveCourse(model.CourseId, model, userId);
@@ -440,7 +440,7 @@ namespace Quiz_Web.Controllers
 			return Json(new CourseBuilderResponse
 			{
 				Success = success,
-				Message = success ? "Ðã luu t? d?ng" : "L?i luu t? d?ng"
+				Message = success ? "ï¿½ï¿½ luu t? d?ng" : "L?i luu t? d?ng"
 			});
 		}
 
@@ -470,7 +470,7 @@ namespace Quiz_Web.Controllers
 
 				if (model == null)
 				{
-					TempData["Error"] = "D? li?u không h?p l?";
+					TempData["Error"] = "D? li?u khï¿½ng h?p l?";
 					return RedirectToAction(nameof(Builder));
 				}
 
@@ -481,7 +481,7 @@ namespace Quiz_Web.Controllers
 					var ext = Path.GetExtension(coverFile.FileName).ToLowerInvariant();
 					if (!allowed.Contains(ext))
 					{
-						TempData["Error"] = "Ð?nh d?ng ?nh không h?p l? (jpg, jpeg, png, gif, webp).";
+						TempData["Error"] = "ï¿½?nh d?ng ?nh khï¿½ng h?p l? (jpg, jpeg, png, gif, webp).";
 						return RedirectToAction(nameof(Builder));
 					}
 
@@ -522,7 +522,7 @@ namespace Quiz_Web.Controllers
 				// Check slug uniqueness
 				if (!_courseService.IsSlugUnique(model.Slug))
 				{
-					TempData["Error"] = "Slug này dã t?n t?i. Vui lòng ch?n slug khác.";
+					TempData["Error"] = "Slug nï¿½y dï¿½ t?n t?i. Vui lï¿½ng ch?n slug khï¿½c.";
 					ViewBag.Categories = _courseService.GetAllCategories();
 					return View("Builder", model);
 				}
@@ -532,18 +532,18 @@ namespace Quiz_Web.Controllers
 
 				if (course == null)
 				{
-					TempData["Error"] = "Có l?i x?y ra khi t?o khóa h?c";
+					TempData["Error"] = "Cï¿½ l?i x?y ra khi t?o khï¿½a h?c";
 					ViewBag.Categories = _courseService.GetAllCategories();
 					return View("Builder", model);
 				}
 
-				TempData["Success"] = "T?o khóa h?c thành công!";
+				TempData["Success"] = "T?o khï¿½a h?c thï¿½nh cï¿½ng!";
 				return RedirectToAction("Detail", new { slug = course.Slug });
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "Error saving course builder");
-				TempData["Error"] = "Có l?i x?y ra: " + ex.Message;
+				TempData["Error"] = "Cï¿½ l?i x?y ra: " + ex.Message;
 				return RedirectToAction(nameof(Builder));
 			}
 		}
@@ -575,7 +575,7 @@ namespace Quiz_Web.Controllers
 
 				if (model == null)
 				{
-					TempData["Error"] = "D? li?u không h?p l?";
+					TempData["Error"] = "D? li?u khï¿½ng h?p l?";
 					return RedirectToAction(nameof(Builder), new { id });
 				}
 
@@ -586,7 +586,7 @@ namespace Quiz_Web.Controllers
 					var ext = Path.GetExtension(coverFile.FileName).ToLowerInvariant();
 					if (!allowed.Contains(ext))
 					{
-						TempData["Error"] = "Ð?nh d?ng ?nh không h?p l? (jpg, jpeg, png, gif, webp).";
+						TempData["Error"] = "ï¿½?nh d?ng ?nh khï¿½ng h?p l? (jpg, jpeg, png, gif, webp).";
 						return RedirectToAction(nameof(Builder), new { id });
 					}
 
@@ -629,29 +629,29 @@ namespace Quiz_Web.Controllers
 
 				if (course == null)
 				{
-					TempData["Error"] = "Không th? c?p nh?t khóa h?c.";
+					TempData["Error"] = "Khï¿½ng th? c?p nh?t khï¿½a h?c.";
 					return RedirectToAction(nameof(Builder), new { id });
 				}
 
-				TempData["Success"] = "C?p nh?t khóa h?c thành công!";
+				TempData["Success"] = "C?p nh?t khï¿½a h?c thï¿½nh cï¿½ng!";
 				return RedirectToAction("Detail", new { slug = course.Slug });
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "Error updating course builder");
-				TempData["Error"] = "Có l?i x?y ra: " + ex.Message;
+				TempData["Error"] = "Cï¿½ l?i x?y ra: " + ex.Message;
 				return RedirectToAction(nameof(Builder), new { id });
 			}
 		}
 
-		// NEW: API ki?m tra slug có kh? d?ng không (dùng cho Builder step 1)
+		// NEW: API ki?m tra slug cï¿½ kh? d?ng khï¿½ng (dï¿½ng cho Builder step 1)
 		[Authorize]
 		[HttpGet]
 		[Route("/courses/check-slug")]
 		public IActionResult CheckSlug([FromQuery] string slug, [FromQuery] int? excludeId)
 		{
 			if (string.IsNullOrWhiteSpace(slug))
-				return Json(new { available = false, message = "Slug không h?p l?" });
+				return Json(new { available = false, message = "Slug khï¿½ng h?p l?" });
 
 			var available = _courseService.IsSlugUnique(slug, excludeId);
 			return Json(new { available });
@@ -672,7 +672,7 @@ namespace Quiz_Web.Controllers
 				if (video == null || video.Length == 0)
 				{
 					_logger.LogWarning("No video file received");
-					return Json(new { success = false, message = "Không có file du?c t?i lên." });
+					return Json(new { success = false, message = "Khï¿½ng cï¿½ file du?c t?i lï¿½n." });
 				}
 
 				_logger.LogInformation($"Uploading video: {video.FileName}, Size: {video.Length} bytes");
@@ -683,7 +683,7 @@ namespace Quiz_Web.Controllers
 				if (!allowed.Contains(ext))
 				{
 					_logger.LogWarning($"Invalid file type: {ext}");
-					return Json(new { success = false, message = $"Ð?nh d?ng video không h?p l?. Ch? ch?p nh?n: {string.Join(", ", allowed)}" });
+					return Json(new { success = false, message = $"ï¿½?nh d?ng video khï¿½ng h?p l?. Ch? ch?p nh?n: {string.Join(", ", allowed)}" });
 				}
 
 				// Validate file size (100MB)
@@ -691,7 +691,7 @@ namespace Quiz_Web.Controllers
 				if (video.Length > maxSize)
 				{
 					_logger.LogWarning($"File too large: {video.Length} bytes");
-					return Json(new { success = false, message = "Kích thu?c video không du?c vu?t quá 100MB." });
+					return Json(new { success = false, message = "Kï¿½ch thu?c video khï¿½ng du?c vu?t quï¿½ 100MB." });
 				}
 
 				// Create upload folder
@@ -719,7 +719,7 @@ namespace Quiz_Web.Controllers
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "Video upload failed");
-				return Json(new { success = false, message = $"Có l?i x?y ra khi t?i video lên: {ex.Message}" });
+				return Json(new { success = false, message = $"Cï¿½ l?i x?y ra khi t?i video lï¿½n: {ex.Message}" });
 			}
 		}
 
@@ -743,7 +743,7 @@ namespace Quiz_Web.Controllers
 			if (course == null)
 			{
 				_logger.LogWarning($"Course not found with slug: {slug}");
-				TempData["Error"] = "Không tìm th?y khóa h?c.";
+				TempData["Error"] = "Khï¿½ng tï¿½m th?y khï¿½a h?c.";
 				return RedirectToAction(nameof(Index));
 			}
 
@@ -754,17 +754,17 @@ namespace Quiz_Web.Controllers
 			// ? FIXED: Allow owner to preview even if not published
 			if (!isOwner && !hasPurchased)
 			{
-				TempData["Error"] = "B?n c?n mua khóa h?c này d? xem n?i dung.";
+				TempData["Error"] = "B?n c?n mua khï¿½a h?c nï¿½y d? xem n?i dung.";
 				return RedirectToAction("Detail", new { slug });
 			}
 
 			// If no chapters or lessons exist
 			if (course.CourseChapters == null || !course.CourseChapters.Any())
 			{
-				TempData["Error"] = "Khóa h?c này chua có n?i dung.";
+				TempData["Error"] = "Khï¿½a h?c nï¿½y chua cï¿½ n?i dung.";
 				if (isOwner)
 				{
-					TempData["Info"] = "Hãy thêm chuong và bài h?c vào khóa h?c c?a b?n.";
+					TempData["Info"] = "Hï¿½y thï¿½m chuong vï¿½ bï¿½i h?c vï¿½o khï¿½a h?c c?a b?n.";
 					return RedirectToAction("Builder", new { id = course.CourseId });
 				}
 				return RedirectToAction("Detail", new { slug });
@@ -784,7 +784,7 @@ namespace Quiz_Web.Controllers
 				}
 				
 				// No lessons found
-				TempData["Error"] = "Khóa h?c này chua có bài h?c nào.";
+				TempData["Error"] = "Khï¿½a h?c nï¿½y chua cï¿½ bï¿½i h?c nï¿½o.";
 				if (isOwner)
 				{
 					return RedirectToAction("Builder", new { id = course.CourseId });
@@ -799,7 +799,7 @@ namespace Quiz_Web.Controllers
 			if (currentChapter == null || currentLesson == null)
 			{
 				_logger.LogWarning($"Lesson not found - ChapterId: {chapterId}, LessonId: {lessonId}");
-				TempData["Error"] = "Không tìm th?y bài h?c.";
+				TempData["Error"] = "Khï¿½ng tï¿½m th?y bï¿½i h?c.";
 				return RedirectToAction("Detail", new { slug });
 			}
 
@@ -811,7 +811,7 @@ namespace Quiz_Web.Controllers
 			return View();
 		}
 
-		// GET: /courses/revenue - th?ng kê doanh thu t? các khóa h?c c?a ngu?i dùng
+		// GET: /courses/revenue - th?ng kï¿½ doanh thu t? cï¿½c khï¿½a h?c c?a ngu?i dï¿½ng
 		[Authorize]
 		[Route("/courses/revenue")]
 		[HttpGet]
@@ -821,14 +821,14 @@ namespace Quiz_Web.Controllers
 			if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
 				return Challenge();
 
-			// L?y danh sách khóa h?c c?a ngu?i dùng cùng v?i thông tin mua hàng
+			// L?y danh sï¿½ch khï¿½a h?c c?a ngu?i dï¿½ng cï¿½ng v?i thï¿½ng tin mua hï¿½ng
 			var courses = _context.Courses
 				.Include(c => c.CoursePurchases)
 				.Where(c => c.OwnerId == userId && c.IsPublished)
 				.OrderByDescending(c => c.CreatedAt)
 				.ToList();
 
-			// Tính toán doanh thu cho t?ng khóa h?c
+			// Tï¿½nh toï¿½n doanh thu cho t?ng khï¿½a h?c
 			var revenueData = courses.Select(c => new CourseRevenueViewModel
 			{
 				CourseId = c.CourseId,
@@ -837,10 +837,10 @@ namespace Quiz_Web.Controllers
 				TotalPurchases = c.CoursePurchases.Count(p => p.Status == "Paid"),
 				GrossRevenue = c.Price * c.CoursePurchases.Count(p => p.Status == "Paid"),
 				InstructorRevenue = c.Price * c.CoursePurchases.Count(p => p.Status == "Paid") * 0.60m, // 60% cho ngu?i t?o
-				PlatformFee = c.Price * c.CoursePurchases.Count(p => p.Status == "Paid") * 0.40m // 40% phí n?n t?ng
+				PlatformFee = c.Price * c.CoursePurchases.Count(p => p.Status == "Paid") * 0.40m // 40% phï¿½ n?n t?ng
 			}).ToList();
 
-			// Tính t?ng doanh thu
+			// Tï¿½nh t?ng doanh thu
 			ViewBag.TotalGrossRevenue = revenueData.Sum(r => r.GrossRevenue);
 			ViewBag.TotalInstructorRevenue = revenueData.Sum(r => r.InstructorRevenue);
 			ViewBag.TotalPlatformFee = revenueData.Sum(r => r.PlatformFee);
@@ -849,4 +849,4 @@ namespace Quiz_Web.Controllers
 			return View(revenueData);
 		}
 	}
-}
+}*/
