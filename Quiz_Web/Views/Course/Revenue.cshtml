@@ -1,0 +1,153 @@
+﻿@model List<Quiz_Web.Models.ViewModels.CourseRevenueViewModel>
+@{
+    ViewData["Title"] = "Thống kê doanh thu";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fa-solid fa-chart-line text-success me-2"></i>
+            Thống kê doanh thu
+        </h2>
+        <a asp-action="My" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-muted mb-2">
+                        <i class="fa-solid fa-shopping-cart fa-2x"></i>
+                    </div>
+                    <h3 class="mb-0 text-primary">@ViewBag.TotalPurchases</h3>
+                    <p class="text-muted mb-0">Tổng số lượt mua</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-muted mb-2">
+                        <i class="fa-solid fa-money-bill-wave fa-2x"></i>
+                    </div>
+                    <h3 class="mb-0 text-info">@(((decimal)ViewBag.TotalGrossRevenue).ToString("N0")) VNĐ</h3>
+                    <p class="text-muted mb-0">Tổng doanh thu</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-muted mb-2">
+                        <i class="fa-solid fa-wallet fa-2x"></i>
+                    </div>
+                    <h3 class="mb-0 text-success">@(((decimal)ViewBag.TotalInstructorRevenue).ToString("N0")) VNĐ</h3>
+                    <p class="text-muted mb-0">Thu nhập của bạn (60%)</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-muted mb-2">
+                        <i class="fa-solid fa-building fa-2x"></i>
+                    </div>
+                    <h3 class="mb-0 text-warning">@(((decimal)ViewBag.TotalPlatformFee).ToString("N0")) VNĐ</h3>
+                    <p class="text-muted mb-0">Phí nền tảng (40%)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fa-solid fa-info-circle me-2"></i>
+            Bạn chưa có doanh thu từ khoa học nào.
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fa-solid fa-chart-column me-2"></i>
+                    Biểu đồ doanh thu theo khóa học
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" 
+                        style="height: 400px;" 
+                        data-revenue='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model))'></canvas>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fa-solid fa-table me-2"></i>
+                    Chi tiết doanh thu tổng khóa học
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="revenueTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Kh�a h?c</th>
+                                <th class="text-end">Giá</th>
+                                <th class="text-center">Số lượt mua</th>
+                                <th class="text-end">Tổng doanh thu</th>
+                                <th class="text-end">Thu nhập (60%)</th>
+                                <th class="text-end">Phí nền tảng (40%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderByDescending(x => x.InstructorRevenue))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@item.CourseTitle</div>
+                                        <small class="text-muted">ID: @item.CourseId</small>
+                                    </td>
+                                    <td class="text-end">@item.CoursePrice.ToString("N0") ?</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">@item.TotalPurchases</span>
+                                    </td>
+                                    <td class="text-end fw-bold text-info">@item.GrossRevenue.ToString("N0") ?</td>
+                                    <td class="text-end fw-bold text-success">@item.InstructorRevenue.ToString("N0") ?</td>
+                                    <td class="text-end text-muted">@item.PlatformFee.ToString("N0") ?</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.bootstrap5.min.css" />
+    <style>
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.5/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/js/course/course-revenue.js" asp-append-version="true"></script>
+}
