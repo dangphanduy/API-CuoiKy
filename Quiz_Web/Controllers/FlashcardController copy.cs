@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Quiz_Web.Models.Entities;
@@ -453,3 +453,4 @@ namespace Quiz_Web.Controllers
         }
     }
 }
+*/

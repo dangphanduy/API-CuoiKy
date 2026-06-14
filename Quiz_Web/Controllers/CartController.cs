@@ -12,18 +12,18 @@ namespace Quiz_Web.Controllers
     public class CartController : Controller
     {
         private readonly ICartService _cartService;
-        private readonly IPurchaseService _purchaseService;
+        //private readonly IPurchaseService _purchaseService;
         private readonly ILogger<CartController> _logger;
         private readonly LearningPlatformContext _context;
 
         public CartController(
             ICartService cartService, 
-            IPurchaseService purchaseService, 
+            //IPurchaseService purchaseService, 
             ILogger<CartController> logger,
             LearningPlatformContext context)
         {
             _cartService = cartService;
-            _purchaseService = purchaseService;
+            //_purchaseService = purchaseService;
             _logger = logger;
             _context = context;
         }
@@ -86,11 +86,11 @@ namespace Quiz_Web.Controllers
                     return Json(new { success = false, message = "Bạn không thể mua khóa học của chính mình" });
                 }
                 
-                var hasPurchased = await _purchaseService.HasUserPurchasedCourseAsync(userId, courseId);
-                if (hasPurchased)
-                {
-                    return Json(new { success = false, message = "Bạn đã sở hữu khóa học này" });
-                }
+                //var hasPurchased = await _purchaseService.HasUserPurchasedCourseAsync(userId, courseId);
+                //if (hasPurchased)
+                //{
+                //    return Json(new { success = false, message = "Bạn đã sở hữu khóa học này" });
+                //}
                 
                 var success = await _cartService.AddToCartAsync(userId, courseId);
 
@@ -178,8 +178,8 @@ namespace Quiz_Web.Controllers
             try
             {
                 var userId = GetCurrentUserId();
-                var hasPurchased = await _purchaseService.HasUserPurchasedCourseAsync(userId, courseId);
-                return Json(new { success = true, hasPurchased = hasPurchased });
+                //var hasPurchased = await _purchaseService.HasUserPurchasedCourseAsync(userId, courseId);
+                return Json(new { success = true, hasPurchased = false });
             }
             catch (Exception ex)
             {

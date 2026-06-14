@@ -1,0 +1,267 @@
+﻿@model Quiz_Web.Models.ViewModels.CourseBuilderViewModel
+@{
+    ViewData["Title"] = ViewBag.CourseId != null ? "Chỉnh sửa khóa học" : "Tạo khóa học mới";
+    var categories = ViewBag.Categories as List<Quiz_Web.Models.Entities.CourseCategory> ?? new List<Quiz_Web.Models.Entities.CourseCategory>();
+}
+
+<div class="course-builder-container">
+    <!-- Progress Bar -->
+    <div class="progress-bar-wrapper">
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Thông tin khóa học</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Cấu trúc nội dung</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Nội dung bài học</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Xuất bản</div>
+            </div>
+        </div>
+        <div class="progress-line">
+            <div class="progress-fill" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Autosave Status -->
+    <div class="autosave-status" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <span>Đã lưu tự động</span>
+    </div>
+
+    <!-- Form Container -->
+    <form id="courseBuilderForm" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="jsonData" id="jsonDataInput" />
+
+        <!-- Step 1: Course Info -->
+        <div class="step-content active" data-step="1">
+            <div class="step-card">
+                <div class="step-header">
+                    <h2><i class="fas fa-graduation-cap"></i> Thông tin khóa học</h2>
+                    <p>Nhập thông tin cơ bản về khóa học của bạn</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="Title" class="required">Tiêu đề khóa học</label>
+                        <input type="text" id="Title" class="form-control" placeholder="VD: Lập trình Web với ASP.NET Core" value="@Model?.Title" required>
+                        <span class="field-error" data-field="Title"></span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="Slug" class="required">URL Slug</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-link"></i>
+                            <input type="text" id="Slug" class="form-control" placeholder="lap-trinh-web-aspnet-core" value="@Model?.Slug" required>
+                        </div>
+                        <small class="form-hint">URL thân thiện cho khóa học (chỉ chữ thường, số và dấu gạch ngang)</small>
+                        <span class="field-error" data-field="Slug"></span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="Summary">Mô tả ngắn</label>
+                        <textarea id="Summary" class="form-control ckeditor-field" rows="6">@Model?.Summary</textarea>
+                        <span class="field-error" data-field="Summary"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="CategoryId">Danh mục</label>
+                        <select id="CategoryId" class="form-select">
+                            <option value="">-- Chọn danh mục --</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.CategoryId" selected="@(Model?.CategoryId == cat.CategoryId)">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Price">Giá khóa học (VNĐ)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                            <input type="number" id="Price" class="form-control" placeholder="0" min="0" step="1000" value="@Model?.Price">
+                        </div>
+                        <small class="form-hint">Để 0 nếu khóa học miễn phí</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="CoverFile">Ảnh bìa</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="CoverFile" name="coverFile" accept="image/*" class="file-input">
+                            <label for="CoverFile" class="file-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Chọn ảnh bìa</span>
+                            </label>
+                            <div id="imagePreview" class="image-preview" style="display: @(string.IsNullOrEmpty(Model?.CoverUrl) ? "none" : "block")">
+                                <img src="@Model?.CoverUrl" alt="Preview" />
+                                <button type="button" class="remove-image"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <input type="hidden" id="CoverUrl" value="@Model?.CoverUrl" />
+                    </div>
+<!--
+                    <div class="form-group full-width">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="IsPublished" @(Model?.IsPublished == true ? "checked" : "")>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">Xuất bản ngay</span>
+                        </label>
+                        <small class="form-hint">Nếu chưa chọn, khóa học sẽ ở trạng thái nháp</small>
+                    </div>
+-->
+
+                </div>
+                <div class="step-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='@Url.Action("My")'">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">
+                        <i class="fas fa-arrow-right"></i> Tiếp tục
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Course Structure -->
+        <div class="step-content" data-step="2">
+            <div class="step-card">
+                <div class="step-header">
+                    <h2><i class="fas fa-list"></i> Cấu trúc khóa học</h2>
+                    <p>Xây dựng các chương và bài học cho khóa học</p>
+                </div>
+
+                <div id="chaptersContainer" class="chapters-container">
+                    <!-- Chapters will be added dynamically -->
+                </div>
+
+                <button type="button" class="btn btn-outline-primary btn-add-chapter" onclick="addChapter()">
+                    <i class="fas fa-plus"></i> Thêm chương mới
+                </button>
+
+                <div class="step-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">
+                        <i class="fas fa-arrow-right"></i> Tiếp tục
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Lesson Contents -->
+        <div class="step-content" data-step="3">
+            <div class="step-card">
+                <div class="step-header">
+                    <h2><i class="fas fa-book-open"></i> Nội dung bài học</h2>
+                    <p>Thêm nội dung chi tiết cho từng bài học</p>
+                </div>
+
+                <div class="lesson-selector-wrapper">
+                    <label for="lessonSelector">Chọn bài học để thêm nội dung:</label>
+                    <select id="lessonSelector" class="form-select" onchange="loadLessonContents()">
+                        <option value="">-- Chọn bài học --</option>
+                    </select>
+                </div>
+
+                <div id="contentsContainer" class="contents-container" style="display: none;">
+                    <div class="contents-list" id="contentsList">
+                        <!-- Content items will be added here -->
+                    </div>
+
+                    <button type="button" class="btn btn-outline-primary" onclick="addContent()">
+                        <i class="fas fa-plus"></i> Thêm nội dung mới
+                    </button>
+                </div>
+
+                <div class="step-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">
+                        <i class="fas fa-arrow-right"></i> Xem trước & Xuất bản
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Preview & Publish -->
+        <div class="step-content" data-step="4">
+            <div class="step-card">
+                <div class="step-header">
+                    <h2><i class="fas fa-rocket"></i> Xem trước & Xuất bản</h2>
+                    <p>Kiểm tra lại thông tin khóa học trước khi xuất bản</p>
+                </div>
+
+                <div class="preview-container" id="previewContainer">
+                    <!-- Preview will be rendered here -->
+                </div>
+
+                <div class="step-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                        <i class="fas fa-arrow-left"></i> Quay lại chỉnh sửa
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="saveCourse(false)">
+                        <i class="fas fa-save"></i> Lưu bản nháp
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveCourse(true)">
+                        <i class="fas fa-rocket"></i> Xuất bản khóa học
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Khóa học đã được xuất bản thành công!</h3>
+        <p>Khóa học của bạn đã sẵn sàng để chia sẻ với học viên.</p>
+        <div class="modal-actions">
+            <a href="@Url.Action("My")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay về trang quản lý
+            </a>
+            <a href="#" id="viewCourseLink" class="btn btn-primary">
+                <i class="fas fa-eye"></i> Xem khóa học
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/course/course-builder.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Load CKEditor first -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <!-- Then Sortable -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- Finally our custom script -->
+    <script src="~/js/course/course-builder.js" asp-append-version="true"></script>
+    
+    @if (Model != null && Model.Chapters != null && Model.Chapters.Any())
+    {
+        <script>
+            // Initialize with existing data if editing
+            window.existingCourseData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model, new System.Text.Json.JsonSerializerOptions { 
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+            }));
+        </script>
+    }
+}
+

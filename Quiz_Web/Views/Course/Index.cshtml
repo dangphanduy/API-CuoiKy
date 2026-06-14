@@ -1,0 +1,539 @@
+﻿@model List<Quiz_Web.Models.Entities.Course>
+@{
+    ViewData["Title"] = "Danh sách khóa học";
+}
+
+<!-- Courses Grid with Filters -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- LEFT SIDEBAR - FILTERS -->
+            <div class="col-lg-3 mb-4">
+                <div class="filter-sidebar">
+                    <h5 class="fw-bold mb-3">Bộ lọc</h5>
+                    
+                    <form id="filterForm" method="get">
+                        @* Preserve search/category param *@
+                        @if (ViewBag.SearchKeyword != null)
+                        {
+                            <input type="hidden" name="q" value="@ViewBag.SearchKeyword" />
+                        }
+                        @if (ViewBag.CategorySlug != null)
+                        {
+                            @* Important: for Category route, we keep it in URL, not as form param *@
+                        }
+
+                        <!-- RATINGS FILTER -->
+                        <div class="filter-section">
+                            <button class="filter-header" type="button" data-bs-toggle="collapse" data-bs-target="#ratingFilter">
+                                <span>Đánh giá</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div class="collapse show" id="ratingFilter">
+                                <div class="filter-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="ratingRange" value="4.0-5.0" id="rating40plus" 
+                                               @(ViewBag.MinRating == 4.0m && ViewBag.MaxRating == null ? "checked" : "") 
+                                               onchange="submitRatingFilter(4.0, null)">
+                                        <label class="form-check-label" for="rating40plus">
+                                            <span class="stars">
+                                                @for (int i = 0; i < 4; i++) { <i class="fa-solid fa-star text-warning"></i> }
+                                                <i class="fa-regular fa-star text-warning"></i>
+                                            </span>
+                                            <span class="ms-1">4.0 trở lên</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="ratingRange" value="3.0-3.9" id="rating30to39"
+                                               @(ViewBag.MinRating == 3.0m && ViewBag.MaxRating == 4.0m ? "checked" : "") 
+                                               onchange="submitRatingFilter(3.0, 4.0)">
+                                        <label class="form-check-label" for="rating30to39">
+                                            <span class="stars">
+                                                @for (int i = 0; i < 3; i++) { <i class="fa-solid fa-star text-warning"></i> }
+                                                @for (int i = 0; i < 2; i++) { <i class="fa-regular fa-star text-warning"></i> }
+                                            </span>
+                                            <span class="ms-1">3.0 - 3.9</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="ratingRange" value="2.0-2.9" id="rating20to29"
+                                               @(ViewBag.MinRating == 2.0m && ViewBag.MaxRating == 3.0m ? "checked" : "") 
+                                               onchange="submitRatingFilter(2.0, 3.0)">
+                                        <label class="form-check-label" for="rating20to29">
+                                            <span class="stars">
+                                                @for (int i = 0; i < 2; i++) { <i class="fa-solid fa-star text-warning"></i> }
+                                                @for (int i = 0; i < 3; i++) { <i class="fa-regular fa-star text-warning"></i> }
+                                            </span>
+                                            <span class="ms-1">2.0 - 2.9</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="ratingRange" value="1.0-1.9" id="rating10to19"
+                                               @(ViewBag.MinRating == 1.0m && ViewBag.MaxRating == 2.0m ? "checked" : "") 
+                                               onchange="submitRatingFilter(1.0, 2.0)">
+                                        <label class="form-check-label" for="rating10to19">
+                                            <span class="stars">
+                                                <i class="fa-solid fa-star text-warning"></i>
+                                                @for (int i = 0; i < 4; i++) { <i class="fa-regular fa-star text-warning"></i> }
+                                            </span>
+                                            <span class="ms-1">1.0 - 1.9</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PRICE FILTER -->
+                        <div class="filter-section">
+                            <button class="filter-header" type="button" data-bs-toggle="collapse" data-bs-target="#priceFilter">
+                                <span>Giá</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div class="collapse show" id="priceFilter">
+                                <div class="filter-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="priceType" value="free" id="priceFree"
+                                               @(ViewBag.IsFree == true ? "checked" : "") 
+                                               onchange="submitPriceFilter(true)">
+                                        <label class="form-check-label" for="priceFree">
+                                            <i class="fa-solid fa-gift text-success me-2"></i>Miễn phí
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="priceType" value="paid" id="pricePaid"
+                                               @(ViewBag.IsFree == false ? "checked" : "") 
+                                               onchange="submitPriceFilter(false)">
+                                        <label class="form-check-label" for="pricePaid">
+                                            <i class="fa-solid fa-dollar-sign text-primary me-2"></i>Trả phí
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden inputs for form submission -->
+                        <input type="hidden" name="minRating" id="minRatingInput" value="@ViewBag.MinRating" />
+                        <input type="hidden" name="maxRating" id="maxRatingInput" value="@ViewBag.MaxRating" />
+                        <input type="hidden" name="isFree" id="isFreeInput" value="@ViewBag.IsFree" />
+
+                        <!-- CLEAR FILTERS BUTTON -->
+                        @if (ViewBag.MinRating != null || ViewBag.MaxRating != null || ViewBag.IsFree != null)
+                        {
+                            <div class="mt-3">
+                                @if (ViewBag.CategorySlug != null)
+                                {
+                                    <a asp-action="Category" 
+                                       asp-route-category="@ViewBag.CategorySlug"
+                                       class="btn btn-outline-secondary w-100">
+                                        <i class="fa-solid fa-times"></i> Xóa bộ lọc
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Index" 
+                                       asp-route-search="@ViewBag.SearchKeyword" 
+                                       class="btn btn-outline-secondary w-100">
+                                        <i class="fa-solid fa-times"></i> Xóa bộ lọc
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT CONTENT - COURSES -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        @if (ViewBag.SearchKeyword != null)
+                        {
+                            <text>Kết quả tìm kiếm: "@ViewBag.SearchKeyword"</text>
+                        }
+                        else if (ViewBag.CategoryName != null)
+                        {
+                            <text>Danh mục: @ViewBag.CategoryName</text>
+                        }
+                        else
+                        {
+                            <text>Tất cả khóa học</text>
+                        }
+                    </h2>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted">@(ViewBag.TotalCount ?? 0) khóa học</span>
+                        <div class="sort-dropdown">
+                            <select name="sortBy" class="form-select" onchange="updateSort(this.value)">
+                                <option value="">Sắp xếp theo</option>
+                                <option value="newest" selected="@(ViewBag.SortBy == "newest")">Mới nhất</option>
+                                <option value="rating" selected="@(ViewBag.SortBy == "rating")">Đánh giá cao</option>
+                                <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">Giá tăng dần</option>
+                                <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Giá giảm dần</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.Count == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-inbox fa-5x text-muted mb-3"></i>
+                        <h3>Không tìm thấy khóa học</h3>
+                        <a asp-action="Index" class="btn btn-primary mt-3">Xem tất cả</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-4">
+                        @foreach (var course in Model)
+                        {
+                            // ✅ SỬ DỤNG DỮ LIỆU THẬT TỪ DATABASE
+                            var rating = (double)course.AverageRating;
+                            var reviewCount = course.TotalReviews;
+                            
+                            <div class="col-lg-4 col-md-6">
+                                <a asp-action="Detail" asp-route-slug="@course.Slug" class="text-decoration-none">
+                                    <div class="card h-100 shadow-sm course-card">
+                                        <div class="position-relative">
+                                            @if (!string.IsNullOrEmpty(course.CoverUrl))
+                                            {
+                                                <img src="@course.CoverUrl" class="card-img-top" 
+                                                     alt="@course.Title" style="height: 180px; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-primary d-flex align-items-center justify-content-center" 
+                                                     style="height: 180px;">
+                                                    <i class="fa-solid fa-book fa-3x text-white"></i>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <div class="card-body d-flex flex-column">
+                                            <h6 class="card-title fw-bold text-dark mb-2 course-title" 
+                                                title="@course.Title">
+                                                @course.Title
+                                            </h6>
+                                            <p class="text-muted small mb-2" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                @course.Owner.FullName
+                                            </p>
+                                            
+                                            <!-- Rating Section -->
+                                            @if (reviewCount > 0)
+                                            {
+                                                <div class="rating-section mb-2">
+                                                    <span class="rating-value fw-bold text-warning">@rating.ToString("F1")</span>
+                                                    <span class="stars ms-1">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            if (i <= Math.Floor(rating))
+                                                            {
+                                                                <i class="fa-solid fa-star text-warning"></i>
+                                                            }
+                                                            else if (i - rating < 1 && i - rating > 0)
+                                                            {
+                                                                <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="fa-regular fa-star text-warning"></i>
+                                                            }
+                                                        }
+                                                    </span>
+                                                    <span class="text-muted small ms-1" style="white-space: nowrap;">(@reviewCount.ToString("N0"))</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="rating-section mb-2">
+                                                    <span class="text-muted small">Chưa có đánh giá</span>
+                                                </div>
+                                            }
+                                            
+                                            @if (course.Price == 0)
+                                            {
+                                                <span class="badge bg-success mb-2" style="width: fit-content;">MIỄN PHÍ</span>
+                                            }
+                                            else
+                                            {
+                                                <p class="h5 text-primary fw-bold mb-2" style="white-space: nowrap;">
+                                                    @course.Price.ToString("N0") ₫
+                                                </p>
+                                            }
+
+                                            <div class="d-flex gap-2 mt-auto">
+                                                <span class="btn btn-outline-primary flex-fill" style="white-space: nowrap;">
+                                                    Xem chi tiết
+                                                </span>
+                                                <button class="btn btn-primary" 
+                                                        onclick="event.preventDefault(); event.stopPropagation(); addToCart(@course.CourseId);"
+                                                        title="Thêm vào giỏ hàng">
+                                                    <i class="fas fa-cart-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (ViewBag.TotalPages > 1)
+                    {
+                        <nav class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                @{
+                                    var paginationAction = ViewBag.CategorySlug != null ? "Category" : "Index";
+                                    var categoryParam = ViewBag.CategorySlug;
+                                }
+                                @if (ViewBag.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        @if (categoryParam != null)
+                                        {
+                                            <a class="page-link" 
+                                               asp-action="Category"
+                                               asp-route-category="@categoryParam"
+                                               asp-route-page="@(ViewBag.CurrentPage - 1)"
+                                               asp-route-minRating="@ViewBag.MinRating"
+                                               asp-route-maxRating="@ViewBag.MaxRating"
+                                               asp-route-isFree="@ViewBag.IsFree"
+                                               asp-route-sortBy="@ViewBag.SortBy">
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="page-link" 
+                                               asp-action="Search" 
+                                               asp-route-page="@(ViewBag.CurrentPage - 1)"
+                                               asp-route-q="@ViewBag.SearchKeyword"
+                                               asp-route-minRating="@ViewBag.MinRating"
+                                               asp-route-maxRating="@ViewBag.MaxRating"
+                                               asp-route-isFree="@ViewBag.IsFree"
+                                               asp-route-sortBy="@ViewBag.SortBy">
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </a>
+                                        }
+                                    </li>
+                                }
+
+                                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                        @if (categoryParam != null)
+                                        {
+                                            <a class="page-link" 
+                                               asp-action="Category"
+                                               asp-route-category="@categoryParam"
+                                               asp-route-page="@i"
+                                               asp-route-minRating="@ViewBag.MinRating"
+                                               asp-route-maxRating="@ViewBag.MaxRating"
+                                               asp-route-isFree="@ViewBag.IsFree"
+                                               asp-route-sortBy="@ViewBag.SortBy">
+                                                @i
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="page-link" 
+                                               asp-action="Search" 
+                                               asp-route-page="@i"
+                                               asp-route-q="@ViewBag.SearchKeyword"
+                                               asp-route-minRating="@ViewBag.MinRating"
+                                               asp-route-maxRating="@ViewBag.MaxRating"
+                                               asp-route-isFree="@ViewBag.IsFree"
+                                               asp-route-sortBy="@ViewBag.SortBy">
+                                                @i
+                                            </a>
+                                        }
+                                    </li>
+                                }
+
+                                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        @if (categoryParam != null)
+                                        {
+                                            <a class="page-link" 
+                                               asp-action="Category"
+                                               asp-route-category="@categoryParam"
+                                               asp-route-page="@(ViewBag.CurrentPage + 1)"
+                                               asp-route-minRating="@ViewBag.MinRating"
+                                               asp-route-maxRating="@ViewBag.MaxRating"
+                                               asp-route-isFree="@ViewBag.IsFree"
+                                               asp-route-sortBy="@ViewBag.SortBy">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="page-link" 
+                                               asp-action="Search" 
+                                               asp-route-page="@(ViewBag.CurrentPage + 1)"
+                                               asp-route-q="@ViewBag.SearchKeyword"
+                                               asp-route-minRating="@ViewBag.MinRating"
+                                               asp-route-maxRating="@ViewBag.MaxRating"
+                                               asp-route-isFree="@ViewBag.IsFree"
+                                               asp-route-sortBy="@ViewBag.SortBy">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </a>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function updateSort(sortBy) {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (sortBy) {
+                urlParams.set('sortBy', sortBy);
+            } else {
+                urlParams.delete('sortBy');
+            }
+            urlParams.set('page', '1');
+            window.location.search = urlParams.toString();
+        }
+        
+        function submitRatingFilter(minRating, maxRating) {
+            document.getElementById('minRatingInput').value = minRating || '';
+            document.getElementById('maxRatingInput').value = maxRating || '';
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            if (minRating) {
+                urlParams.set('minRating', minRating);
+            } else {
+                urlParams.delete('minRating');
+            }
+            
+            if (maxRating) {
+                urlParams.set('maxRating', maxRating);
+            } else {
+                urlParams.delete('maxRating');
+            }
+            
+            urlParams.set('page', '1');
+            window.location.search = urlParams.toString();
+        }
+        
+        function submitPriceFilter(isFree) {
+            document.getElementById('isFreeInput').value = isFree;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('isFree', isFree);
+            urlParams.set('page', '1');
+            window.location.search = urlParams.toString();
+        }
+        
+        // Handle form submission for category route
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('filterForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    var categorySlug = '@ViewBag.CategorySlug';
+                    if (categorySlug) {
+                        e.preventDefault();
+                        var minRating = document.getElementById('minRatingInput').value;
+                        var maxRating = document.getElementById('maxRatingInput').value;
+                        var isFree = document.getElementById('isFreeInput').value;
+                        var sortBy = document.querySelector('[name="sortBy"]').value;
+                        
+                        var url = '@Url.Action("Category", "Course", new { category = "__CATEGORY__" })'.replace('__CATEGORY__', categorySlug);
+                        var params = new URLSearchParams();
+                        if (minRating) params.set('minRating', minRating);
+                        if (maxRating) params.set('maxRating', maxRating);
+                        if (isFree) params.set('isFree', isFree);
+                        if (sortBy) params.set('sortBy', sortBy);
+                        
+                        window.location.href = url + (params.toString() ? '?' + params.toString() : '');
+                    }
+                });
+            }
+        });
+        
+        // Update cart badge function
+        function updateCartBadge() {
+            fetch('/api/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const badge = document.querySelector('.cart-badge');
+                        const cartLink = document.getElementById('cartDropdownToggle');
+                        
+                        if (data.count > 0) {
+                            if (badge) {
+                                badge.textContent = data.count;
+                            } else if (cartLink) {
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-purple';
+                                newBadge.textContent = data.count;
+                                cartLink.appendChild(newBadge);
+                            }
+                        } else {
+                            if (badge) {
+                                badge.remove();
+                            }
+                        }
+                    }
+                })
+                .catch(error => console.error('Error updating cart badge:', error));
+        }
+        
+        // Add to cart function
+        async function addToCart(courseId) {
+            try {
+                const response = await fetch(`/api/cart/add/${courseId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update cart count and dropdown
+                    updateCartBadge();
+                    document.dispatchEvent(new CustomEvent('cartUpdated'));
+                    
+                    // Show success message
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('Đã thêm vào giỏ hàng!');
+                    } else {
+                        alert('Đã thêm vào giỏ hàng!');
+                    }
+                } else {
+                    if (result.message && result.message.includes('đăng nhập')) {
+                        window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                    } else {
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(result.message || 'Không thể thêm vào giỏ hàng');
+                        } else {
+                            alert(result.message || 'Không thể thêm vào giỏ hàng');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('Đã xảy ra lỗi');
+                } else {
+                    alert('Đã xảy ra lỗi');
+                }
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <link href="~/css/course/course-index.css" rel="stylesheet" asp-append-version="true" />
+}
