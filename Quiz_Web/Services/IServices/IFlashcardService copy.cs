@@ -1,4 +1,4 @@
-using Quiz_Web.Models.Entities;
+/*using Quiz_Web.Models.Entities;
 using Quiz_Web.Models.ViewModels;
 
 namespace Quiz_Web.Services.IServices
@@ -30,3 +30,4 @@ namespace Quiz_Web.Services.IServices
         Task<IEnumerable<FlashcardSet>> GetPublicFlashcardSetsAsync();
     }
 }
+*/
