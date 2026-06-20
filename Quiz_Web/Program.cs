@@ -5,6 +5,7 @@ using Quiz_Web.Services;
 using Quiz_Web.Services.IServices;
 using Ganss.Xss;
 using Quiz_Web.Models.MoMoPayment;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,13 @@ builder.Services.AddControllersWithViews();
 
 // ? Add API Controllers support
 builder.Services.AddControllers();
+
+// Add Swagger/OpenAPI support
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Quiz Web API", Version = "v1" });
+});
 
 //session
 builder.Services.AddSession(options=>
@@ -62,6 +70,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // Register background service for course recommendations
 // builder.Services.AddHostedService<CourseRecommendationService>();
+builder.Services.AddHostedService<SoftDeleteCleanupService>();
 
 // Html sanitizer for CKEditor content
 builder.Services.AddSingleton(sp =>
@@ -72,6 +81,14 @@ builder.Services.AddSingleton(sp =>
 });
 
 var app = builder.Build();
+
+// Enable Swagger UI and Swagger Document generation
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quiz Web API v1");
+    c.RoutePrefix = "swagger";
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
